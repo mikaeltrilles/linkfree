@@ -96,6 +96,7 @@ model Profile {
   products        Product[]
   pageViews       PageView[]
   linkEvents      LinkEvent[]
+  abTests         ABTest[]
 }
 
 enum ProfileStatus {
@@ -269,4 +270,39 @@ model EventLog {
   createdAt DateTime @default(now())
 
   user      User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+}
+
+// ─── A/B TESTING ───
+model ABTest {
+  id        String        @id @default(cuid())
+  profileId String
+  linkId    String?
+  name      String
+  status    ABTestStatus  @default(RUNNING)
+  createdAt DateTime      @default(now())
+  updatedAt DateTime      @updatedAt
+
+  profile   Profile       @relation(fields: [profileId], references: [id], onDelete: Cascade)
+  variants  ABTestVariant[]
+}
+
+enum ABTestStatus {
+  RUNNING
+  PAUSED
+  COMPLETED
+}
+
+model ABTestVariant {
+  id          String   @id @default(cuid())
+  abTestId    String
+  linkId      String?
+  title       String
+  url         String?
+  thumbnail   String?
+  weight      Int      @default(50)
+  clickCount  Int      @default(0)
+  viewCount   Int      @default(0)
+  createdAt   DateTime @default(now())
+
+  abTest      ABTest   @relation(fields: [abTestId], references: [id], onDelete: Cascade)
 }
