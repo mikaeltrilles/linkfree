@@ -23,11 +23,11 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="fr" suppressHydrationWarning>
-      <body className={`${inter.variable} font-sans`}>
+    <html lang="fr" suppressHydrationWarning className="dark">
+      <body className={`${inter.variable} font-sans dark`}>
         <ThemeProvider
           attribute="class"
-          defaultTheme="system"
+          defaultTheme="dark"
           enableSystem
           disableTransitionOnChange
         >

@@ -82,6 +82,41 @@ export function LinkButton({
     }
   }
 
+  if (variant === "pinned") {
+    return (
+      <Link
+        href={link.url}
+        target="_blank"
+        rel="noopener noreferrer"
+        onClick={handleClick}
+        className="glass-pinned group flex w-full items-center gap-4 overflow-hidden rounded-2xl px-5 py-4 transition hover:scale-[1.02] active:scale-[0.98]"
+        style={{
+          background: `linear-gradient(135deg, ${primaryColor}dd, ${primaryColor}99)`,
+        }}
+      >
+        {link.thumbnail ? (
+          <div className="relative h-11 w-11 shrink-0 overflow-hidden rounded-xl">
+            <Image src={link.thumbnail} alt="" fill className="object-cover" />
+          </div>
+        ) : (
+          <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-white/15 text-white">
+            <Icon className="h-5 w-5" />
+          </div>
+        )}
+        <div className="min-w-0 flex-1">
+          <div className="flex items-center gap-2">
+            <span className="truncate font-semibold text-sm text-white">{link.title}</span>
+            <Pin className="h-3 w-3 shrink-0 text-white/70" />
+            <ExternalLink className="h-3.5 w-3.5 shrink-0 text-white/0 transition group-hover:text-white/60" />
+          </div>
+          {link.description && (
+            <p className="truncate text-xs text-white/70">{link.description}</p>
+          )}
+        </div>
+      </Link>
+    )
+  }
+
   return (
     <Link
       href={link.url}
@@ -89,63 +124,26 @@ export function LinkButton({
       rel="noopener noreferrer"
       onClick={handleClick}
       className={cn(
-        "group flex w-full items-center gap-4 overflow-hidden rounded-2xl border px-4 py-3.5 transition",
-        "hover:-translate-y-0.5 active:translate-y-0",
-        variant === "pinned"
-          ? "border-transparent text-white shadow-lg"
-          : "bg-card/80 shadow-card backdrop-blur-sm hover:shadow-card-hover",
-        variant === "pinned" && "ring-1 ring-white/20"
+        "glass group flex w-full items-center gap-4 overflow-hidden rounded-2xl px-5 py-4 transition",
+        "hover:bg-white/[0.08] hover:border-white/[0.15] hover:scale-[1.02] active:scale-[0.98]"
       )}
-      style={
-        variant === "pinned"
-          ? { backgroundColor: primaryColor }
-          : undefined
-      }
     >
-      {link.thumbnail && (
-        <div className="relative h-10 w-10 shrink-0 overflow-hidden rounded-lg">
-          <Image
-            src={link.thumbnail}
-            alt=""
-            fill
-            className="object-cover"
-          />
+      {link.thumbnail ? (
+        <div className="relative h-11 w-11 shrink-0 overflow-hidden rounded-xl">
+          <Image src={link.thumbnail} alt="" fill className="object-cover" />
         </div>
-      )}
-      {!link.thumbnail && (
-        <div
-          className={cn(
-            "flex h-10 w-10 shrink-0 items-center justify-center rounded-lg",
-            variant === "pinned"
-              ? "bg-white/20 text-white"
-              : "bg-muted text-muted-foreground"
-          )}
-        >
+      ) : (
+        <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-white/[0.06] text-white/70">
           <Icon className="h-5 w-5" />
         </div>
       )}
       <div className="min-w-0 flex-1">
         <div className="flex items-center gap-2">
-          <span className="truncate font-semibold text-sm">{link.title}</span>
-          {link.isPinned && (
-            <Pin className="h-3 w-3 shrink-0 opacity-60" />
-          )}
-          <ExternalLink
-            className={cn(
-              "h-3.5 w-3.5 shrink-0 opacity-0 transition group-hover:opacity-60",
-              variant === "pinned" && "text-white"
-            )}
-          />
+          <span className="truncate font-semibold text-sm text-white/90">{link.title}</span>
+          <ExternalLink className="h-3.5 w-3.5 shrink-0 text-white/0 transition group-hover:text-white/50" />
         </div>
         {link.description && (
-          <p
-            className={cn(
-              "truncate text-xs",
-              variant === "pinned" ? "opacity-80" : "text-muted-foreground"
-            )}
-          >
-            {link.description}
-          </p>
+          <p className="truncate text-xs text-white/50">{link.description}</p>
         )}
       </div>
     </Link>
