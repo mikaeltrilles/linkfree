@@ -1,0 +1,7 @@
+# DO NOT REMOVE. CLOUDLINUX PASSENGER CONFIGURATION BEGIN
+PassengerAppRoot "/home/vote1550/linkfree.tmktools.com"
+PassengerBaseURI "/"
+PassengerNodejs "/home/vote1550/nodevenv/linkfree.tmktools.com/22/bin/node"
+PassengerAppType node
+PassengerStartupFile server.js
+# DO NOT REMOVE. CLOUDLINUX PASSENGER CONFIGURATION END

@@ -17,11 +17,11 @@ async function main() {
       theme: "minimal",
       status: "PUBLISHED",
       locale: "fr",
-      appearance: {
+      appearance: JSON.stringify({
         colors: { primary: "#14b8a6", background: "#ffffff", text: "#111827" },
         layout: "list",
         darkMode: false,
-      },
+      }),
       links: {
         create: [
           {

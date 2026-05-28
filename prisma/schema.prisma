@@ -3,7 +3,7 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
+  provider = "sqlite"
   url      = env("DATABASE_URL")
 }
 
@@ -14,12 +14,12 @@ model Account {
   type              String
   provider          String
   providerAccountId String
-  refresh_token     String? @db.Text
-  access_token      String? @db.Text
+  refresh_token     String?
+  access_token      String?
   expires_at        Int?
   token_type        String?
   scope             String?
-  id_token          String? @db.Text
+  id_token          String?
   session_state     String?
   user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
 
@@ -43,14 +43,14 @@ model VerificationToken {
 }
 
 model User {
-  id            String    @id @default(cuid())
-  email         String    @unique
+  id            String   @id @default(cuid())
+  email         String   @unique
   emailVerified DateTime?
   name          String?
   image         String?
-  role          UserRole  @default(OWNER)
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
+  role          String   @default("OWNER")
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
 
   accounts      Account[]
   sessions      Session[]
@@ -58,38 +58,32 @@ model User {
   eventLogs     EventLog[]
 }
 
-enum UserRole {
-  OWNER
-  EDITOR
-  VIEWER
-}
-
 // ─── PROFILES ───
 model Profile {
-  id              String        @id @default(cuid())
+  id              String   @id @default(cuid())
   userId          String
-  slug            String        @unique
+  slug            String   @unique
   title           String?
-  bio             String?       @db.Text
+  bio             String?
   avatar          String?
   coverImage      String?
-  theme           String        @default("minimal")
-  appearance      Json?         // { colors, font, layout, darkMode }
-  status          ProfileStatus @default(DRAFT)
-  isEmergency     Boolean       @default(false)
+  theme           String   @default("minimal")
+  appearance      String?  // JSON string
+  status          String   @default("DRAFT")
+  isEmergency     Boolean  @default(false)
   emergencyUrl    String?
   seoTitle        String?
   seoDescription  String?
   favicon         String?
   ogImage         String?
-  customDomain    String?       @unique
-  pixelConfig     Json?
+  customDomain    String?  @unique
+  pixelConfig     String?  // JSON string
   webhookUrl      String?
-  locale          String        @default("fr")
-  createdAt       DateTime      @default(now())
-  updatedAt       DateTime      @updatedAt
+  locale          String   @default("fr")
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
 
-  user            User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   links           Link[]
   sections        Section[]
   leads           Lead[]
@@ -99,52 +93,31 @@ model Profile {
   abTests         ABTest[]
 }
 
-enum ProfileStatus {
-  DRAFT
-  PUBLISHED
-  SCHEDULED
-  ARCHIVED
-}
-
 // ─── LINKS ───
 model Link {
-  id          String     @id @default(cuid())
+  id          String   @id @default(cuid())
   profileId   String
   sectionId   String?
   title       String
   url         String
-  description String?    @db.Text
+  description String?
   thumbnail   String?
-  layout      LinkLayout @default(LIST)
-  priority    Int        @default(0)
-  isPinned    Boolean    @default(false)
-  status      LinkStatus @default(ACTIVE)
+  layout      String   @default("LIST")
+  priority    Int      @default(0)
+  isPinned    Boolean  @default(false)
+  status      String   @default("ACTIVE")
   startsAt    DateTime?
   endsAt      DateTime?
-  clickCount  Int        @default(0)
+  clickCount  Int      @default(0)
   utmSource   String?
   utmMedium   String?
   utmCampaign String?
-  createdAt   DateTime   @default(now())
-  updatedAt   DateTime   @updatedAt
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 
-  profile     Profile    @relation(fields: [profileId], references: [id], onDelete: Cascade)
-  section     Section?   @relation(fields: [sectionId], references: [id], onDelete: SetNull)
+  profile     Profile  @relation(fields: [profileId], references: [id], onDelete: Cascade)
+  section     Section? @relation(fields: [sectionId], references: [id], onDelete: SetNull)
   linkEvents  LinkEvent[]
-}
-
-enum LinkLayout {
-  LIST
-  GRID
-  CAROUSEL
-}
-
-enum LinkStatus {
-  ACTIVE
-  SCHEDULED
-  EXPIRED
-  ARCHIVED
-  DISABLED
 }
 
 // ─── SECTIONS ───
@@ -154,7 +127,7 @@ model Section {
   title     String
   priority  Int      @default(0)
   isVisible Boolean  @default(true)
-  conditions Json?   // { time, country, language, device }
+  conditions String? // JSON string
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
@@ -167,8 +140,8 @@ model Product {
   id            String   @id @default(cuid())
   profileId     String
   title         String
-  description   String?  @db.Text
-  price         Decimal  @db.Decimal(10, 2)
+  description   String?
+  price         Float
   currency      String   @default("EUR")
   image         String?
   stock         Int?
@@ -182,26 +155,18 @@ model Product {
 }
 
 model Order {
-  id              String      @id @default(cuid())
+  id              String   @id @default(cuid())
   productId       String
-  stripeSessionId String?     @unique
+  stripeSessionId String?  @unique
   customerEmail   String
   customerName    String?
-  amount          Decimal     @db.Decimal(10, 2)
+  amount          Float
   currency        String
-  status          OrderStatus @default(PENDING)
-  createdAt       DateTime    @default(now())
-  updatedAt       DateTime    @updatedAt
+  status          String   @default("PENDING")
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
 
-  product         Product     @relation(fields: [productId], references: [id], onDelete: Cascade)
-}
-
-enum OrderStatus {
-  PENDING
-  PAID
-  FULFILLED
-  REFUNDED
-  CANCELLED
+  product         Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
 }
 
 // ─── LEADS ───
@@ -210,11 +175,11 @@ model Lead {
   profileId String
   email     String
   name      String?
-  tags      String[]
-  message   String?  @db.Text
+  tags      String?  // comma-separated
+  message   String?
   consent   Boolean  @default(false)
   source    String?
-  metadata  Json?
+  metadata  String?  // JSON string
   createdAt DateTime @default(now())
 
   profile   Profile  @relation(fields: [profileId], references: [id], onDelete: Cascade)
@@ -225,7 +190,7 @@ model PageView {
   id        String   @id @default(cuid())
   profileId String
   ipHash    String?
-  userAgent String?  @db.Text
+  userAgent String?
   referrer  String?
   country   String?
   device    String?
@@ -239,24 +204,19 @@ model PageView {
 }
 
 model LinkEvent {
-  id        String        @id @default(cuid())
+  id        String   @id @default(cuid())
   profileId String
   linkId    String
-  type      LinkEventType
+  type      String
   ipHash    String?
   country   String?
   device    String?
-  createdAt DateTime      @default(now())
+  createdAt DateTime @default(now())
 
-  profile   Profile       @relation(fields: [profileId], references: [id], onDelete: Cascade)
-  link      Link          @relation(fields: [linkId], references: [id], onDelete: Cascade)
+  profile   Profile  @relation(fields: [profileId], references: [id], onDelete: Cascade)
+  link      Link     @relation(fields: [linkId], references: [id], onDelete: Cascade)
 
   @@index([linkId, createdAt])
-}
-
-enum LinkEventType {
-  CLICK
-  IMPRESSION
 }
 
 // ─── AUDIT ───
@@ -265,7 +225,7 @@ model EventLog {
   userId    String?
   profileId String?
   action    String
-  metadata  Json?
+  metadata  String?  // JSON string
   ipHash    String?
   createdAt DateTime @default(now())
 
@@ -274,22 +234,16 @@ model EventLog {
 
 // ─── A/B TESTING ───
 model ABTest {
-  id        String        @id @default(cuid())
+  id        String   @id @default(cuid())
   profileId String
   linkId    String?
   name      String
-  status    ABTestStatus  @default(RUNNING)
-  createdAt DateTime      @default(now())
-  updatedAt DateTime      @updatedAt
+  status    String   @default("RUNNING")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
-  profile   Profile       @relation(fields: [profileId], references: [id], onDelete: Cascade)
+  profile   Profile  @relation(fields: [profileId], references: [id], onDelete: Cascade)
   variants  ABTestVariant[]
-}
-
-enum ABTestStatus {
-  RUNNING
-  PAUSED
-  COMPLETED
 }
 
 model ABTestVariant {
