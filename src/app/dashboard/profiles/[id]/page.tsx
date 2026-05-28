@@ -4,8 +4,8 @@ import { redirect, notFound } from "next/navigation"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { LinkListItem } from "@/components/dashboard/LinkListItem"
-import { ArrowLeft, Plus, Settings, BarChart3, Eye } from "lucide-react"
+import { LinkListEditor } from "@/components/dashboard/LinkListEditor"
+import { ArrowLeft, Settings, BarChart3, Eye } from "lucide-react"
 
 export default async function ProfileEditPage({
   params,
@@ -27,7 +27,6 @@ export default async function ProfileEditPage({
 
   return (
     <div className="space-y-6">
-      {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
           <Link href="/dashboard">
@@ -59,37 +58,9 @@ export default async function ProfileEditPage({
         </div>
       </div>
 
-      {/* Tabs */}
-      <div className="flex gap-1 rounded-xl bg-muted p-1">
-        {["Apparence", "Liens", "Sections", "CTA"].map((tab) => (
-          <Button
-            key={tab}
-            variant={tab === "Liens" ? "secondary" : "ghost"}
-            size="sm"
-            className="flex-1"
-          >
-            {tab}
-          </Button>
-        ))}
-      </div>
-
-      {/* Links */}
       <Card>
-        <CardHeader className="flex flex-row items-center justify-between">
-          <CardTitle className="text-base">Vos liens</CardTitle>
-          <Button size="sm">
-            <Plus className="mr-2 h-4 w-4" />Ajouter
-          </Button>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-2">
-            {profile.links.map((link) => (
-              <LinkListItem key={link.id} link={link} />
-            ))}
-            {profile.links.length === 0 && (
-              <p className="py-8 text-center text-sm text-muted-foreground">Aucun lien pour le moment.</p>
-            )}
-          </div>
+        <CardContent className="pt-6">
+          <LinkListEditor profileId={profile.id} initialLinks={profile.links} />
         </CardContent>
       </Card>
     </div>
