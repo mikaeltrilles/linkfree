@@ -89,24 +89,24 @@ export function LinkButton({
         target="_blank"
         rel="noopener noreferrer"
         onClick={handleClick}
-        className="glass-pinned group flex w-full items-center gap-4 overflow-hidden rounded-2xl px-5 py-4 transition hover:scale-[1.02] active:scale-[0.98]"
+        className="bento-pinned group flex w-full items-center gap-5"
         style={{
-          background: `linear-gradient(135deg, ${primaryColor}dd, ${primaryColor}99)`,
+          background: `linear-gradient(135deg, ${primaryColor}, ${primaryColor}cc)`,
         }}
       >
         {link.thumbnail ? (
-          <div className="relative h-11 w-11 shrink-0 overflow-hidden rounded-xl">
+          <div className="relative h-12 w-12 shrink-0 overflow-hidden rounded-2xl">
             <Image src={link.thumbnail} alt="" fill className="object-cover" />
           </div>
         ) : (
-          <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-white/15 text-white">
+          <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-white/20 text-white">
             <Icon className="h-5 w-5" />
           </div>
         )}
         <div className="min-w-0 flex-1">
           <div className="flex items-center gap-2">
-            <span className="truncate font-semibold text-sm text-white">{link.title}</span>
-            <Pin className="h-3 w-3 shrink-0 text-white/70" />
+            <span className="truncate font-medium text-sm">{link.title}</span>
+            <Pin className="h-3 w-3 shrink-0 text-white/60" />
             <ExternalLink className="h-3.5 w-3.5 shrink-0 text-white/0 transition group-hover:text-white/60" />
           </div>
           {link.description && (
@@ -124,26 +124,26 @@ export function LinkButton({
       rel="noopener noreferrer"
       onClick={handleClick}
       className={cn(
-        "glass group flex w-full items-center gap-4 overflow-hidden rounded-2xl px-5 py-4 transition",
-        "hover:bg-white/[0.08] hover:border-white/[0.15] hover:scale-[1.02] active:scale-[0.98]"
+        "bento-card group flex w-full items-center gap-5 px-6 py-5",
+        "hover:bg-white hover:shadow-lg"
       )}
     >
       {link.thumbnail ? (
-        <div className="relative h-11 w-11 shrink-0 overflow-hidden rounded-xl">
+        <div className="relative h-12 w-12 shrink-0 overflow-hidden rounded-2xl">
           <Image src={link.thumbnail} alt="" fill className="object-cover" />
         </div>
       ) : (
-        <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-white/[0.06] text-white/70">
+        <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-stone-100 text-stone-400">
           <Icon className="h-5 w-5" />
         </div>
       )}
       <div className="min-w-0 flex-1">
         <div className="flex items-center gap-2">
-          <span className="truncate font-semibold text-sm text-white/90">{link.title}</span>
-          <ExternalLink className="h-3.5 w-3.5 shrink-0 text-white/0 transition group-hover:text-white/50" />
+          <span className="truncate font-medium text-sm text-stone-700">{link.title}</span>
+          <ExternalLink className="h-3.5 w-3.5 shrink-0 text-stone-300 transition group-hover:text-stone-500" />
         </div>
         {link.description && (
-          <p className="truncate text-xs text-white/50">{link.description}</p>
+          <p className="truncate text-xs text-stone-400">{link.description}</p>
         )}
       </div>
     </Link>

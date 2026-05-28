@@ -53,8 +53,8 @@ function renderLink(
 ) {
   if (link.url === "#contact-form") {
     return (
-      <div className="glass-strong rounded-2xl p-5">
-        <p className="mb-3 text-sm font-semibold">{link.title}</p>
+      <div className="bento-card col-span-full p-6">
+        <p className="mb-4 text-sm font-semibold">{link.title}</p>
         <ContactForm profileId={profileId} />
       </div>
     )
@@ -82,14 +82,14 @@ export function ProfileShell({ profile }: ProfileShellProps) {
     <motion.div
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
-      className="relative mx-auto min-h-screen max-w-md overflow-hidden pb-16"
+      className="relative mx-auto min-h-screen max-w-lg overflow-hidden pb-20"
     >
-      {/* Animated gradient background */}
-      <div className="fixed inset-0 -z-10 gradient-mesh opacity-60" />
-      <div className="fixed inset-0 -z-10 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-violet-900/20 via-background to-background" />
+      {/* Organic gradient background */}
+      <div className="fixed inset-0 -z-10 organic-gradient" />
+      <div className="fixed inset-0 -z-10 bg-[linear-gradient(180deg,#faf8f5_0%,#f5f2ed_100%)]" />
 
       {/* Cover */}
-      <div className="relative h-52 w-full overflow-hidden md:h-64">
+      <div className="relative h-56 w-full overflow-hidden md:h-72">
         {profile.coverImage ? (
           <Image
             src={profile.coverImage}
@@ -102,23 +102,20 @@ export function ProfileShell({ profile }: ProfileShellProps) {
           <div
             className="h-full w-full"
             style={{
-              background: `linear-gradient(135deg, ${primaryColor}60, ${primaryColor})`,
+              background: `linear-gradient(135deg, ${primaryColor}20, ${primaryColor}50)`,
             }}
           />
         )}
-        {/* Glass overlay at bottom */}
-        <div className="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-background to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-[#faf8f5]" />
       </div>
 
-      <div className="relative px-5">
-        {/* Avatar */}
-        <div className="-mt-16 flex justify-center">
+      <div className="relative px-6">
+        {/* Avatar + Title */}
+        <div className="-mt-16 flex flex-col items-center">
           <div className="relative">
-            <div
-              className="relative h-32 w-32 overflow-hidden rounded-full border-[3px] shadow-2xl"
+            <div className="relative h-32 w-32 overflow-hidden rounded-[2rem] border-[3px] border-white shadow-2xl"
               style={{
-                borderColor: `${primaryColor}40`,
-                boxShadow: `0 0 40px ${primaryColor}30, 0 8px 32px rgba(0,0,0,0.3)`,
+                boxShadow: `0 12px 40px ${primaryColor}25, 0 0 0 4px rgba(255,255,255,0.8)`,
               }}
             >
               {profile.avatar ? (
@@ -129,40 +126,35 @@ export function ProfileShell({ profile }: ProfileShellProps) {
                   className="object-cover"
                 />
               ) : (
-                <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-white/10 to-white/5 text-4xl font-bold text-white/90">
+                <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-stone-100 to-stone-50 text-5xl font-serif text-stone-400"
+                >
                   {(profile.title || profile.slug).charAt(0).toUpperCase()}
                 </div>
               )}
             </div>
-            {/* Glow ring */}
-            <div
-              className="absolute -inset-1 rounded-full blur-md -z-10"
-              style={{ background: `${primaryColor}20` }}
-            />
           </div>
-        </div>
 
-        {/* Title & Bio */}
-        <div className="mt-5 text-center">
-          <h1 className="text-2xl font-bold tracking-tight glow-text">
-            {profile.title || profile.slug}
-          </h1>
-          {profile.bio && (
-            <p className="mt-2 text-sm text-white/60 max-w-xs mx-auto leading-relaxed">
-              {profile.bio}
-            </p>
-          )}
+          <div className="mt-5 text-center">
+            <h1 className="font-serif text-3xl font-medium tracking-tight text-stone-800">
+              {profile.title || profile.slug}
+            </h1>
+            {profile.bio && (
+              <p className="mt-2 text-sm text-stone-500 max-w-xs mx-auto leading-relaxed">
+                {profile.bio}
+              </p>
+            )}
+          </div>
         </div>
 
         {/* Pinned Links */}
         {pinned.length > 0 && (
-          <div className="mt-8 space-y-3">
+          <div className="mt-8 grid grid-cols-1 gap-3">
             {pinned.map((link, i) => (
               <motion.div
                 key={link.id}
-                initial={{ opacity: 0, y: 16 }}
+                initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: i * 0.1, type: "spring", stiffness: 100 }}
+                transition={{ delay: i * 0.1, type: "spring", stiffness: 80 }}
               >
                 {renderLink(link, profile.id, "pinned", primaryColor)}
               </motion.div>
@@ -170,8 +162,8 @@ export function ProfileShell({ profile }: ProfileShellProps) {
           </div>
         )}
 
-        {/* Sections / Regular Links */}
-        <div className="mt-8 space-y-8">
+        {/* Sections / Bento Grid */}
+        <div className="mt-8 space-y-10">
           {visibleSections.length > 0 ? (
             visibleSections.map((section) => {
               const sectionLinks = regular.filter(
@@ -180,16 +172,18 @@ export function ProfileShell({ profile }: ProfileShellProps) {
               if (sectionLinks.length === 0) return null
               return (
                 <div key={section.id}>
-                  <h2 className="mb-4 text-xs font-semibold uppercase tracking-widest text-white/40 text-center">
-                    {section.title}
-                  </h2>
-                  <div className="space-y-3">
+                  <div className="flex items-center justify-center mb-5">
+                    <span className="pill-badge text-stone-500">
+                      {section.title}
+                    </span>
+                  </div>
+                  <div className="grid grid-cols-1 gap-3">
                     {sectionLinks.map((link, i) => (
                       <motion.div
                         key={link.id}
-                        initial={{ opacity: 0, y: 16 }}
+                        initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
-                        transition={{ delay: 0.2 + i * 0.08, type: "spring", stiffness: 100 }}
+                        transition={{ delay: 0.2 + i * 0.08, type: "spring", stiffness: 80 }}
                       >
                         {renderLink(link, profile.id, "default", primaryColor)}
                       </motion.div>
@@ -199,13 +193,13 @@ export function ProfileShell({ profile }: ProfileShellProps) {
               )
             })
           ) : (
-            <div className="space-y-3">
+            <div className="grid grid-cols-1 gap-3">
               {regular.map((link, i) => (
                 <motion.div
                   key={link.id}
-                  initial={{ opacity: 0, y: 16 }}
+                  initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.2 + i * 0.08, type: "spring", stiffness: 100 }}
+                  transition={{ delay: 0.2 + i * 0.08, type: "spring", stiffness: 80 }}
                 >
                   {renderLink(link, profile.id, "default", primaryColor)}
                 </motion.div>
@@ -214,42 +208,38 @@ export function ProfileShell({ profile }: ProfileShellProps) {
           )}
         </div>
 
-        {/* Products */}
+        {/* Products Bento Grid */}
         {profile.products.length > 0 && (
-          <div className="mt-10">
-            <h2 className="mb-4 text-xs font-semibold uppercase tracking-widest text-white/40 text-center">
-              Boutique
-            </h2>
+          <div className="mt-12">
+            <div className="flex items-center justify-center mb-5">
+              <span className="pill-badge text-stone-500">Boutique</span>
+            </div>
             <div className="grid grid-cols-2 gap-3">
               {profile.products.map((product) => (
                 <div
                   key={product.id}
-                  className="glass-product overflow-hidden rounded-2xl transition hover:border-white/[0.12] hover:bg-white/[0.06]"
+                  className="bento-card overflow-hidden group"
                 >
                   {product.image && (
-                    <div className="relative h-36 w-full overflow-hidden">
+                    <div className="relative h-40 w-full overflow-hidden">
                       <Image
                         src={product.image}
                         alt={product.title}
                         fill
-                        className="object-cover"
+                        className="object-cover transition duration-500 group-hover:scale-105"
                       />
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent" />
                     </div>
                   )}
-                  <div className="p-4">
-                    <h3 className="text-sm font-semibold text-white/90">{product.title}</h3>
-                    <p className="mt-1 text-xs text-white/50 line-clamp-2">{product.description}</p>
-                    <div className="mt-3 flex items-center justify-between">
-                      <span className="text-sm font-bold text-white/90">
-                        {Number(product.price).toFixed(2)} {product.currency}
+                  <div className="p-5">
+                    <h3 className="font-serif text-base font-medium text-stone-800">{product.title}</h3>
+                    <p className="mt-1 text-xs text-stone-400 line-clamp-2">{product.description}</p>
+                    <div className="mt-4 flex items-center justify-between">
+                      <span className="font-serif text-lg font-medium text-stone-700">
+                        {Number(product.price).toFixed(0)} {product.currency}
                       </span>
                       <button
-                        className="rounded-xl px-3 py-1.5 text-xs font-semibold text-white/90 transition hover:scale-105"
-                        style={{
-                          background: `linear-gradient(135deg, ${primaryColor}dd, ${primaryColor})`,
-                          boxShadow: `0 4px 16px ${primaryColor}40`,
-                        }}
+                        className="rounded-full px-4 py-2 text-xs font-medium text-white transition hover:scale-105"
+                        style={{ backgroundColor: primaryColor }}
                       >
                         Acheter
                       </button>
@@ -262,15 +252,15 @@ export function ProfileShell({ profile }: ProfileShellProps) {
         )}
 
         {/* Footer */}
-        <div className="mt-14 flex items-center justify-center gap-4 text-xs text-white/30">
+        <div className="mt-16 flex items-center justify-center gap-5 text-xs text-stone-400">
           <Link
             href={`/p/${profile.slug}/qr`}
-            className="flex items-center gap-1.5 transition hover:text-white/70"
+            className="flex items-center gap-1.5 transition hover:text-stone-600"
           >
             <QrCode className="h-3.5 w-3.5" /> QR
           </Link>
-          <span className="text-white/10">·</span>
-          <Link href="/" className="transition hover:text-white/70">Powered by Linkfree</Link>
+          <span className="text-stone-300">·</span>
+          <Link href="/" className="transition hover:text-stone-600">Powered by Linkfree</Link>
         </div>
       </div>
     </motion.div>
