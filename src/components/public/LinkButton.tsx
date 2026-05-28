@@ -18,6 +18,7 @@ import {
   Youtube,
   Linkedin,
   Pin,
+  ChevronRight,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 
@@ -62,7 +63,7 @@ export function LinkButton({
   link,
   variant = "default",
   profileId,
-  primaryColor = "#14b8a6",
+  primaryColor = "#000000",
 }: LinkButtonProps) {
   const Icon = getLinkIcon(link.url)
 
@@ -89,29 +90,26 @@ export function LinkButton({
         target="_blank"
         rel="noopener noreferrer"
         onClick={handleClick}
-        className="bento-pinned group flex w-full items-center gap-5"
-        style={{
-          background: `linear-gradient(135deg, ${primaryColor}, ${primaryColor}cc)`,
-        }}
+        className="linktree-btn-solid group"
+        style={{ backgroundColor: primaryColor }}
       >
-        {link.thumbnail ? (
-          <div className="relative h-12 w-12 shrink-0 overflow-hidden rounded-2xl">
-            <Image src={link.thumbnail} alt="" fill className="object-cover" />
-          </div>
-        ) : (
-          <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-white/20 text-white">
+        <div className="absolute left-4 flex items-center">
+          {link.thumbnail ? (
+            <div className="relative h-6 w-6 overflow-hidden rounded-md">
+              <Image src={link.thumbnail} alt="" fill className="object-cover" />
+            </div>
+          ) : (
             <Icon className="h-5 w-5" />
-          </div>
-        )}
-        <div className="min-w-0 flex-1">
-          <div className="flex items-center gap-2">
-            <span className="truncate font-medium text-sm">{link.title}</span>
-            <Pin className="h-3 w-3 shrink-0 text-white/60" />
-            <ExternalLink className="h-3.5 w-3.5 shrink-0 text-white/0 transition group-hover:text-white/60" />
-          </div>
-          {link.description && (
-            <p className="truncate text-xs text-white/70">{link.description}</p>
           )}
+        </div>
+
+        <div className="flex items-center gap-1.5">
+          <span className="truncate">{link.title}</span>
+          <Pin className="h-3 w-3 text-white/60" />
+        </div>
+
+        <div className="absolute right-4 flex items-center">
+          <ChevronRight className="h-4 w-4 text-white/60 transition group-hover:translate-x-0.5" />
         </div>
       </Link>
     )
@@ -123,28 +121,24 @@ export function LinkButton({
       target="_blank"
       rel="noopener noreferrer"
       onClick={handleClick}
-      className={cn(
-        "bento-card group flex w-full items-center gap-5 px-6 py-5",
-        "hover:bg-white hover:shadow-lg"
-      )}
+      className="linktree-btn group"
     >
-      {link.thumbnail ? (
-        <div className="relative h-12 w-12 shrink-0 overflow-hidden rounded-2xl">
-          <Image src={link.thumbnail} alt="" fill className="object-cover" />
-        </div>
-      ) : (
-        <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-stone-100 text-stone-400">
-          <Icon className="h-5 w-5" />
-        </div>
-      )}
-      <div className="min-w-0 flex-1">
-        <div className="flex items-center gap-2">
-          <span className="truncate font-medium text-sm text-stone-700">{link.title}</span>
-          <ExternalLink className="h-3.5 w-3.5 shrink-0 text-stone-300 transition group-hover:text-stone-500" />
-        </div>
-        {link.description && (
-          <p className="truncate text-xs text-stone-400">{link.description}</p>
+      <div className="absolute left-4 flex items-center">
+        {link.thumbnail ? (
+          <div className="relative h-6 w-6 overflow-hidden rounded-md">
+            <Image src={link.thumbnail} alt="" fill className="object-cover" />
+          </div>
+        ) : (
+          <Icon className="h-5 w-5 text-black/40 transition group-hover:text-black/60" />
         )}
+      </div>
+
+      <span className="truncate text-black/80 transition group-hover:text-black">
+        {link.title}
+      </span>
+
+      <div className="absolute right-4 flex items-center">
+        <ChevronRight className="h-4 w-4 text-black/20 transition group-hover:translate-x-0.5 group-hover:text-black/40" />
       </div>
     </Link>
   )
