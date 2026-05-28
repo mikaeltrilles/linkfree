@@ -11,6 +11,7 @@ import Link from "next/link"
 export default async function NewProfilePage() {
   const session = await auth()
   if (!session?.user?.id) redirect("/auth/signin")
+  const userId = session.user.id
 
   async function createProfile(formData: FormData) {
     "use server"
@@ -27,7 +28,7 @@ export default async function NewProfilePage() {
 
     await prisma.profile.create({
       data: {
-        userId: session!.user!.id,
+        userId,
         slug,
         title,
         bio,

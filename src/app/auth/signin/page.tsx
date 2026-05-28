@@ -2,7 +2,7 @@ import { auth, signIn } from "@/lib/auth"
 import { redirect } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
-import { Link2, Mail } from "lucide-react"
+import { Link2 } from "lucide-react"
 
 export default async function SignInPage() {
   const session = await auth()
@@ -18,7 +18,7 @@ export default async function SignInPage() {
           <CardTitle>Connexion</CardTitle>
           <CardDescription>Accédez à votre dashboard Linkfree</CardDescription>
         </CardHeader>
-        <CardContent className="space-y-3">
+        <CardContent>
           <form
             action={async () => {
               "use server"
@@ -45,34 +45,6 @@ export default async function SignInPage() {
                 />
               </svg>
               Continuer avec Google
-            </Button>
-          </form>
-
-          <div className="relative">
-            <div className="absolute inset-0 flex items-center">
-              <span className="w-full border-t" />
-            </div>
-            <div className="relative flex justify-center text-xs uppercase">
-              <span className="bg-card px-2 text-muted-foreground">ou</span>
-            </div>
-          </div>
-
-          <form
-            action={async (formData) => {
-              "use server"
-              await signIn("nodemailer", { email: formData.get("email") as string, redirectTo: "/dashboard" })
-            }}
-            className="flex gap-2"
-          >
-            <input
-              name="email"
-              type="email"
-              placeholder="vous@email.com"
-              required
-              className="flex h-10 flex-1 rounded-xl border border-input bg-background px-3 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
-            />
-            <Button type="submit" size="icon">
-              <Mail className="h-4 w-4" />
             </Button>
           </form>
         </CardContent>

@@ -16,7 +16,7 @@ interface ProfileShellProps {
     avatar: string | null
     coverImage: string | null
     theme: string
-    appearance: Record<string, any> | null
+    appearance: any
     locale: string
     links: Array<{
       id: string
@@ -32,7 +32,7 @@ interface ProfileShellProps {
       id: string
       title: string
       isVisible: boolean
-      conditions: Record<string, any> | null
+      conditions: any
     }>
     products: Array<{
       id: string

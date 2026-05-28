@@ -63,5 +63,5 @@ export default async function PublicProfilePage({
     // Silencieux
   }
 
-  return <ProfileShell profile={profile} />
+  return <ProfileShell profile={profile as any} />
 }
