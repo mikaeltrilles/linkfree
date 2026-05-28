@@ -1,4 +1,3 @@
-import { prisma } from "@/lib/prisma"
 import { notFound } from "next/navigation"
 import { ProfileShell } from "@/components/public/ProfileShell"
 import type { Metadata } from "next"
@@ -8,13 +7,14 @@ export async function generateMetadata({
 }: {
   params: { slug: string }
 }): Promise<Metadata> {
-  const profile = await prisma.profile.findUnique({
-    where: { slug: params.slug },
+  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "https://linkfree.tmktools.com"
+  const res = await fetch(`${baseUrl}/api/profiles/${params.slug}`, {
+    cache: "no-store",
   })
-
-  if (!profile || profile.status !== "PUBLISHED") {
+  if (!res.ok) {
     return { title: "Page introuvable — Linkfree" }
   }
+  const profile = await res.json()
 
   return {
     title: profile.seoTitle || profile.title || `${profile.slug} — Linkfree`,
@@ -30,38 +30,16 @@ export default async function PublicProfilePage({
 }: {
   params: { slug: string }
 }) {
-  const profile = await prisma.profile.findUnique({
-    where: { slug: params.slug },
-    include: {
-      links: {
-        where: { status: "ACTIVE" },
-        orderBy: [{ isPinned: "desc" }, { priority: "asc" }],
-      },
-      sections: {
-        orderBy: { priority: "asc" },
-      },
-      products: {
-        where: { isActive: true },
-        orderBy: { createdAt: "desc" },
-      },
-    },
+  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "https://linkfree.tmktools.com"
+  const res = await fetch(`${baseUrl}/api/profiles/${params.slug}`, {
+    cache: "no-store",
   })
 
-  if (!profile || profile.status !== "PUBLISHED") {
+  if (!res.ok) {
     notFound()
   }
 
-  // Log page view (fire-and-forget, ne bloque pas le rendu)
-  try {
-    await prisma.pageView.create({
-      data: {
-        profileId: profile.id,
-        // En production : passer ipHash, userAgent, referrer depuis headers()
-      },
-    })
-  } catch {
-    // Silencieux
-  }
+  const profile = await res.json()
 
-  return <ProfileShell profile={profile as any} />
+  return <ProfileShell profile={profile} />
 }

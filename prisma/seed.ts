@@ -5,12 +5,22 @@ const prisma = new PrismaClient()
 async function main() {
   console.log("🌱 Seeding database...")
 
+  const user = await prisma.user.upsert({
+    where: { id: "seed-user" },
+    update: {},
+    create: {
+      id: "seed-user",
+      email: "demo@linkfree.tmktools.com",
+      name: "Demo User",
+    },
+  })
+
   // Demo profile
   const profile = await prisma.profile.upsert({
     where: { slug: "demo" },
     update: {},
     create: {
-      userId: "seed-user",
+      userId: user.id,
       slug: "demo",
       title: "Alice Dupont",
       bio: "Designer UX & Product · Créatrice de templates Figma · Disponible en freelance",
