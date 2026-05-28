@@ -4,8 +4,7 @@ import { motion } from "framer-motion"
 import Image from "next/image"
 import Link from "next/link"
 import { LinkButton } from "./LinkButton"
-import { Globe, MapPin, Calendar, QrCode } from "lucide-react"
-import { Button } from "@/components/ui/button"
+import { QrCode } from "lucide-react"
 
 interface ProfileShellProps {
   profile: {
@@ -38,7 +37,7 @@ interface ProfileShellProps {
       id: string
       title: string
       description: string | null
-      price: number
+      price: any
       currency: string
       image: string | null
     }>
@@ -48,18 +47,28 @@ interface ProfileShellProps {
 export function ProfileShell({ profile }: ProfileShellProps) {
   const pinned = profile.links.filter((l) => l.isPinned)
   const regular = profile.links.filter((l) => !l.isPinned)
-
-  // En production : filtrer les sections selon conditions (heure, device, pays)
   const visibleSections = profile.sections.filter((s) => s.isVisible)
+
+  // Extract appearance colors if available
+  const colors = profile.appearance?.colors
+  const primaryColor = colors?.primary || "#14b8a6"
+
+  const containerStyle: React.CSSProperties = colors
+    ? {
+        backgroundColor: colors.background,
+        color: colors.text,
+      }
+    : {}
 
   return (
     <motion.div
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
-      className="mx-auto min-h-screen max-w-md bg-background pb-16"
+      className="mx-auto min-h-screen max-w-md pb-16"
+      style={containerStyle}
     >
       {/* Cover */}
-      <div className="relative h-40 w-full overflow-hidden md:h-56">
+      <div className="relative h-44 w-full overflow-hidden md:h-60">
         {profile.coverImage ? (
           <Image
             src={profile.coverImage}
@@ -69,14 +78,19 @@ export function ProfileShell({ profile }: ProfileShellProps) {
             priority
           />
         ) : (
-          <div className="h-full w-full bg-gradient-to-br from-brand-400 to-brand-600" />
+          <div
+            className="h-full w-full"
+            style={{
+              background: `linear-gradient(135deg, ${primaryColor}88, ${primaryColor})`,
+            }}
+          />
         )}
       </div>
 
       {/* Avatar + Info */}
-      <div className="relative px-6">
-        <div className="-mt-12">
-          <div className="relative h-24 w-24 overflow-hidden rounded-full border-4 border-background shadow-lg">
+      <div className="relative px-5">
+        <div className="-mt-14">
+          <div className="relative h-28 w-28 overflow-hidden rounded-full border-4 border-background shadow-xl">
             {profile.avatar ? (
               <Image
                 src={profile.avatar}
@@ -85,7 +99,7 @@ export function ProfileShell({ profile }: ProfileShellProps) {
                 className="object-cover"
               />
             ) : (
-              <div className="flex h-full w-full items-center justify-center bg-muted text-2xl font-bold text-muted-foreground">
+              <div className="flex h-full w-full items-center justify-center bg-muted text-3xl font-bold text-muted-foreground">
                 {(profile.title || profile.slug).charAt(0).toUpperCase()}
               </div>
             )}
@@ -93,9 +107,11 @@ export function ProfileShell({ profile }: ProfileShellProps) {
         </div>
 
         <div className="mt-3">
-          <h1 className="text-xl font-bold">{profile.title || profile.slug}</h1>
+          <h1 className="text-2xl font-bold tracking-tight">
+            {profile.title || profile.slug}
+          </h1>
           {profile.bio && (
-            <p className="mt-1 text-sm text-muted-foreground">{profile.bio}</p>
+            <p className="mt-1 text-sm opacity-80">{profile.bio}</p>
           )}
         </div>
 
@@ -113,6 +129,7 @@ export function ProfileShell({ profile }: ProfileShellProps) {
                   link={link}
                   variant="pinned"
                   profileId={profile.id}
+                  primaryColor={primaryColor}
                 />
               </motion.div>
             ))}
@@ -129,7 +146,7 @@ export function ProfileShell({ profile }: ProfileShellProps) {
               if (sectionLinks.length === 0) return null
               return (
                 <div key={section.id}>
-                  <h2 className="mb-3 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                  <h2 className="mb-3 text-xs font-semibold uppercase tracking-wider opacity-60">
                     {section.title}
                   </h2>
                   <div className="space-y-3">
@@ -144,6 +161,7 @@ export function ProfileShell({ profile }: ProfileShellProps) {
                           link={link}
                           variant="default"
                           profileId={profile.id}
+                          primaryColor={primaryColor}
                         />
                       </motion.div>
                     ))}
@@ -164,6 +182,7 @@ export function ProfileShell({ profile }: ProfileShellProps) {
                     link={link}
                     variant="default"
                     profileId={profile.id}
+                    primaryColor={primaryColor}
                   />
                 </motion.div>
               ))}
@@ -174,14 +193,14 @@ export function ProfileShell({ profile }: ProfileShellProps) {
         {/* Products */}
         {profile.products.length > 0 && (
           <div className="mt-8">
-            <h2 className="mb-3 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+            <h2 className="mb-3 text-xs font-semibold uppercase tracking-wider opacity-60">
               Boutique
             </h2>
             <div className="grid grid-cols-2 gap-3">
               {profile.products.map((product) => (
                 <div
                   key={product.id}
-                  className="overflow-hidden rounded-xl border bg-card shadow-card"
+                  className="overflow-hidden rounded-xl border bg-card/80 shadow-card backdrop-blur-sm"
                 >
                   {product.image && (
                     <div className="relative h-32 w-full">
@@ -195,14 +214,19 @@ export function ProfileShell({ profile }: ProfileShellProps) {
                   )}
                   <div className="p-3">
                     <h3 className="text-sm font-semibold">{product.title}</h3>
-                    <p className="mt-1 text-xs text-muted-foreground">
+                    <p className="mt-1 text-xs opacity-70">
                       {product.description}
                     </p>
                     <div className="mt-2 flex items-center justify-between">
                       <span className="text-sm font-bold">
-                        {product.price.toFixed(2)} {product.currency}
+                        {Number(product.price).toFixed(2)} {product.currency}
                       </span>
-                      <Button size="sm" variant="outline">Acheter</Button>
+                      <button
+                        className="rounded-lg px-2.5 py-1 text-xs font-semibold text-white"
+                        style={{ backgroundColor: primaryColor }}
+                      >
+                        Acheter
+                      </button>
                     </div>
                   </div>
                 </div>
@@ -211,13 +235,18 @@ export function ProfileShell({ profile }: ProfileShellProps) {
           </div>
         )}
 
-        {/* Footer */}
-        <div className="mt-12 flex items-center justify-center gap-4 text-xs text-muted-foreground">
-          <Link href={`/p/${profile.slug}/qr`} className="flex items-center gap-1 hover:text-foreground">
-            <QrCode className="h-3 w-3" /> QR
+        {/* Social proof / footer */}
+        <div className="mt-12 flex items-center justify-center gap-4 text-xs opacity-50">
+          <Link
+            href={`/p/${profile.slug}/qr`}
+            className="flex items-center gap-1 hover:opacity-100"
+          >
+            <QrCode className="h-3.5 w-3.5" /> QR
           </Link>
           <span>·</span>
-          <Link href="/" className="hover:text-foreground">Powered by Linkfree</Link>
+          <Link href="/" className="hover:opacity-100">
+            Powered by Linkfree
+          </Link>
         </div>
       </div>
     </motion.div>

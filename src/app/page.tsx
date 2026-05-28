@@ -1,6 +1,16 @@
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
-import { ArrowRight, Link2, BarChart3, Zap, Globe, Shield } from "lucide-react"
+import {
+  ArrowRight,
+  Link2,
+  BarChart3,
+  Zap,
+  Globe,
+  Shield,
+  Smartphone,
+  Layers,
+  Clock,
+} from "lucide-react"
 
 export default function HomePage() {
   return (
@@ -14,7 +24,8 @@ export default function HomePage() {
           </div>
           <nav className="hidden gap-6 text-sm font-medium md:flex">
             <Link href="#features" className="text-muted-foreground hover:text-foreground">Fonctionnalités</Link>
-            <Link href="#pricing" className="text-muted-foreground hover:text-foreground">Tarifs</Link>
+            <Link href="#how" className="text-muted-foreground hover:text-foreground">Comment ça marche</Link>
+            <Link href="/p/demo" className="text-muted-foreground hover:text-foreground">Démo</Link>
           </nav>
           <div className="flex items-center gap-3">
             <Link href="/auth/signin">
@@ -55,6 +66,12 @@ export default function HomePage() {
 
       {/* Features grid */}
       <section id="features" className="mx-auto max-w-7xl px-6 py-24">
+        <div className="mb-12 text-center">
+          <h2 className="text-3xl font-bold">Tout ce dont vous avez besoin</h2>
+          <p className="mt-4 text-muted-foreground">
+            Des fonctionnalités pensées pour convertir, pas juste afficher.
+          </p>
+        </div>
         <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
           {[
             {
@@ -78,14 +95,29 @@ export default function HomePage() {
               desc: "RDV, formulaires, WhatsApp, tips et mini-commerce intégrés — sans lien externe.",
             },
             {
-              icon: Link2,
+              icon: Smartphone,
+              title: "Mobile-first",
+              desc: "Design pensé pour le mobile. Vos visiteurs viennent majoritairement de leur téléphone.",
+            },
+            {
+              icon: Layers,
               title: "A/B Testing",
               desc: "Testez deux variantes de bouton et gardez le gagnant automatiquement.",
             },
             {
-              icon: ArrowRight,
+              icon: Clock,
+              title: "Programmation",
+              desc: "Planifiez la publication et l'expiration de vos liens à l'avance.",
+            },
+            {
+              icon: Link2,
               title: "Multi-profil",
               desc: "Gérez plusieurs pages publiques depuis un seul compte — idéal pour les agences.",
+            },
+            {
+              icon: ArrowRight,
+              title: "Domaine perso",
+              desc: "Connectez votre propre nom de domaine pour une expérience de marque complète.",
             },
           ].map((f) => (
             <div
@@ -99,6 +131,71 @@ export default function HomePage() {
           ))}
         </div>
       </section>
+
+      {/* How it works */}
+      <section id="how" className="mx-auto max-w-7xl px-6 py-24">
+        <div className="mb-12 text-center">
+          <h2 className="text-3xl font-bold">Comment ça marche</h2>
+          <p className="mt-4 text-muted-foreground">De l'idée à la page publique en 3 minutes.</p>
+        </div>
+        <div className="grid gap-8 md:grid-cols-3">
+          {[
+            {
+              step: "01",
+              title: "Créez votre profil",
+              desc: "Choisissez un slug, ajoutez votre photo, votre bio et votre couverture.",
+            },
+            {
+              step: "02",
+              title: "Ajoutez vos liens",
+              desc: "Liens sociaux, portfolio, prise de RDV, produits — tout est centralisé.",
+            },
+            {
+              step: "03",
+              title: "Publiez et convertissez",
+              desc: "Partagez votre lien unique. Analysez et optimisez avec les outils intégrés.",
+            },
+          ].map((s) => (
+            <div key={s.step} className="relative rounded-2xl border bg-muted/30 p-8">
+              <span className="text-4xl font-bold text-brand-200">{s.step}</span>
+              <h3 className="mt-4 text-lg font-semibold">{s.title}</h3>
+              <p className="mt-2 text-sm text-muted-foreground">{s.desc}</p>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* CTA */}
+      <section className="mx-auto max-w-7xl px-6 py-24">
+        <div className="rounded-3xl bg-brand-600 px-6 py-16 text-center text-white">
+          <h2 className="text-3xl font-bold">Prêt à transformer votre link-in-bio ?</h2>
+          <p className="mx-auto mt-4 max-w-xl text-brand-100">
+            Rejoignez les créateurs et freelances qui utilisent Linkfree pour centraliser,
+            convertir et analyser leur audience.
+          </p>
+          <div className="mt-8">
+            <Link href="/auth/signin">
+              <Button size="lg" variant="secondary" className="gap-2">
+                Créer ma page gratuitement
+                <ArrowRight className="h-4 w-4" />
+              </Button>
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      {/* Footer */}
+      <footer className="border-t bg-muted/30">
+        <div className="mx-auto max-w-7xl px-6 py-12">
+          <div className="flex flex-col items-center justify-between gap-4 sm:flex-row">
+            <div className="flex items-center gap-2 font-semibold">
+              <Link2 className="h-5 w-5 text-brand-500" />
+              Linkfree
+            </div>
+            <p className="text-sm text-muted-foreground">© 2026 Linkfree. Tous droits réservés.</p>
+          </div>
+        </div>
+      </footer>
     </div>
   )
 }
