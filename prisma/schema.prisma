@@ -1,5 +1,7 @@
 generator client {
-  provider = "prisma-client-js"
+  provider      = "prisma-client-js"
+  // "debian-openssl-1.0.x" : cible requise par l'hébergement cPanel (CloudLinux)
+  binaryTargets = ["native", "debian-openssl-1.0.x"]
 }
 
 datasource db {
@@ -43,96 +45,140 @@ model VerificationToken {
 }
 
 model User {
-  id            String   @id @default(cuid())
-  email         String   @unique
+  id            String    @id @default(cuid())
+  email         String    @unique
   emailVerified DateTime?
   name          String?
+  password      String?
   image         String?
-  role          String   @default("OWNER")
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
+  role          String    @default("OWNER")
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
 
-  accounts      Account[]
-  sessions      Session[]
-  profiles      Profile[]
-  eventLogs     EventLog[]
+  accounts  Account[]
+  sessions  Session[]
+  profiles  Profile[]
+  eventLogs EventLog[]
 }
 
 // ─── PROFILES ───
 model Profile {
-  id              String   @id @default(cuid())
-  userId          String
-  slug            String   @unique
-  title           String?
-  bio             String?
-  avatar          String?
-  coverImage      String?
-  theme           String   @default("minimal")
-  appearance      String?  // JSON string
-  status          String   @default("DRAFT")
-  isEmergency     Boolean  @default(false)
-  emergencyUrl    String?
-  seoTitle        String?
-  seoDescription  String?
-  favicon         String?
-  ogImage         String?
-  customDomain    String?  @unique
-  pixelConfig     String?  // JSON string
-  webhookUrl      String?
-  locale          String   @default("fr")
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
+  id             String   @id @default(cuid())
+  userId         String
+  slug           String   @unique
+  title          String?
+  bio            String?
+  avatar         String?
+  coverImage     String?
+  theme          String   @default("minimal")
+  appearance     String? // JSON string
+  status         String   @default("DRAFT")
+  isEmergency    Boolean  @default(false)
+  emergencyUrl   String?
+  seoTitle       String?
+  seoDescription String?
+  favicon        String?
+  ogImage        String?
+  customDomain   String?  @unique
+  pixelConfig    String? // JSON string
+  webhookUrl     String?
+  locale         String   @default("fr")
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
 
-  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  links           Link[]
-  sections        Section[]
-  leads           Lead[]
-  products        Product[]
-  pageViews       PageView[]
-  linkEvents      LinkEvent[]
-  abTests         ABTest[]
+  user        User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  links       Link[]
+  socialLinks SocialLink[]
+  projects    Project[]
+  sections    Section[]
+  leads       Lead[]
+  products    Product[]
+  pageViews   PageView[]
+  linkEvents  LinkEvent[]
+  abTests     ABTest[]
 }
 
 // ─── LINKS ───
 model Link {
-  id          String   @id @default(cuid())
+  id          String    @id @default(cuid())
   profileId   String
   sectionId   String?
   title       String
   url         String
   description String?
   thumbnail   String?
-  layout      String   @default("LIST")
-  priority    Int      @default(0)
-  isPinned    Boolean  @default(false)
-  status      String   @default("ACTIVE")
+  layout      String    @default("LIST")
+  priority    Int       @default(0)
+  isPinned    Boolean   @default(false)
+  status      String    @default("ACTIVE")
   startsAt    DateTime?
   endsAt      DateTime?
-  clickCount  Int      @default(0)
+  clickCount  Int       @default(0)
   utmSource   String?
   utmMedium   String?
   utmCampaign String?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  profile    Profile     @relation(fields: [profileId], references: [id], onDelete: Cascade)
+  section    Section?    @relation(fields: [sectionId], references: [id], onDelete: SetNull)
+  linkEvents LinkEvent[]
+}
+
+// ─── SOCIAL LINKS ───
+// Icônes réseaux sociaux affichées sous la bio (GitHub, LinkedIn, X, Instagram…)
+model SocialLink {
+  id        String   @id @default(cuid())
+  profileId String
+  platform  String // clé de src/lib/social-platforms.ts
+  url       String
+  label     String?
+  priority  Int      @default(0)
+  isVisible Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  profile Profile @relation(fields: [profileId], references: [id], onDelete: Cascade)
+
+  @@index([profileId, priority])
+}
+
+// ─── PROJECTS ───
+// Cartes "Projets" : réalisations, apps, dépôts, études de cas
+model Project {
+  id          String   @id @default(cuid())
+  profileId   String
+  title       String
+  description String?  @db.Text
+  url         String?
+  repoUrl     String?
+  image       String?
+  tags        String? // séparés par des virgules
+  priority    Int      @default(0)
+  isVisible   Boolean  @default(true)
+  isFeatured  Boolean  @default(false)
+  clickCount  Int      @default(0)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
-  profile     Profile  @relation(fields: [profileId], references: [id], onDelete: Cascade)
-  section     Section? @relation(fields: [sectionId], references: [id], onDelete: SetNull)
-  linkEvents  LinkEvent[]
+  profile Profile @relation(fields: [profileId], references: [id], onDelete: Cascade)
+
+  @@index([profileId, priority])
 }
 
 // ─── SECTIONS ───
 model Section {
-  id        String   @id @default(cuid())
-  profileId String
-  title     String
-  priority  Int      @default(0)
-  isVisible Boolean  @default(true)
+  id         String   @id @default(cuid())
+  profileId  String
+  title      String
+  priority   Int      @default(0)
+  isVisible  Boolean  @default(true)
   conditions String? // JSON string
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
 
-  profile   Profile  @relation(fields: [profileId], references: [id], onDelete: Cascade)
-  links     Link[]
+  profile Profile @relation(fields: [profileId], references: [id], onDelete: Cascade)
+  links   Link[]
 }
 
 // ─── PRODUCTS ───
@@ -150,8 +196,8 @@ model Product {
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
 
-  profile       Profile  @relation(fields: [profileId], references: [id], onDelete: Cascade)
-  orders        Order[]
+  profile Profile @relation(fields: [profileId], references: [id], onDelete: Cascade)
+  orders  Order[]
 }
 
 model Order {
@@ -166,7 +212,7 @@ model Order {
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
 
-  product         Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
 }
 
 // ─── LEADS ───
@@ -175,14 +221,14 @@ model Lead {
   profileId String
   email     String
   name      String?
-  tags      String?  // comma-separated
+  tags      String? // comma-separated
   message   String?
   consent   Boolean  @default(false)
   source    String?
-  metadata  String?  // JSON string
+  metadata  String? // JSON string
   createdAt DateTime @default(now())
 
-  profile   Profile  @relation(fields: [profileId], references: [id], onDelete: Cascade)
+  profile Profile @relation(fields: [profileId], references: [id], onDelete: Cascade)
 }
 
 // ─── ANALYTICS ───
@@ -198,7 +244,7 @@ model PageView {
   browser   String?
   createdAt DateTime @default(now())
 
-  profile   Profile  @relation(fields: [profileId], references: [id], onDelete: Cascade)
+  profile Profile @relation(fields: [profileId], references: [id], onDelete: Cascade)
 
   @@index([profileId, createdAt])
 }
@@ -213,8 +259,8 @@ model LinkEvent {
   device    String?
   createdAt DateTime @default(now())
 
-  profile   Profile  @relation(fields: [profileId], references: [id], onDelete: Cascade)
-  link      Link     @relation(fields: [linkId], references: [id], onDelete: Cascade)
+  profile Profile @relation(fields: [profileId], references: [id], onDelete: Cascade)
+  link    Link    @relation(fields: [linkId], references: [id], onDelete: Cascade)
 
   @@index([linkId, createdAt])
 }
@@ -225,11 +271,11 @@ model EventLog {
   userId    String?
   profileId String?
   action    String
-  metadata  String?  // JSON string
+  metadata  String? // JSON string
   ipHash    String?
   createdAt DateTime @default(now())
 
-  user      User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+  user User? @relation(fields: [userId], references: [id], onDelete: SetNull)
 }
 
 // ─── A/B TESTING ───
@@ -242,21 +288,21 @@ model ABTest {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  profile   Profile  @relation(fields: [profileId], references: [id], onDelete: Cascade)
-  variants  ABTestVariant[]
+  profile  Profile         @relation(fields: [profileId], references: [id], onDelete: Cascade)
+  variants ABTestVariant[]
 }
 
 model ABTestVariant {
-  id          String   @id @default(cuid())
-  abTestId    String
-  linkId      String?
-  title       String
-  url         String?
-  thumbnail   String?
-  weight      Int      @default(50)
-  clickCount  Int      @default(0)
-  viewCount   Int      @default(0)
-  createdAt   DateTime @default(now())
+  id         String   @id @default(cuid())
+  abTestId   String
+  linkId     String?
+  title      String
+  url        String?
+  thumbnail  String?
+  weight     Int      @default(50)
+  clickCount Int      @default(0)
+  viewCount  Int      @default(0)
+  createdAt  DateTime @default(now())
 
-  abTest      ABTest   @relation(fields: [abTestId], references: [id], onDelete: Cascade)
+  abTest ABTest @relation(fields: [abTestId], references: [id], onDelete: Cascade)
 }

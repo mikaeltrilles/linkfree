@@ -1,5 +1,9 @@
-import { auth } from "@/lib/auth"
+import NextAuth from "next-auth"
 import { NextResponse } from "next/server"
+import { authConfig } from "@/lib/auth.config"
+
+// Instance Edge-safe : pas d'adapter Prisma, uniquement la lecture du JWT.
+const { auth } = NextAuth(authConfig)
 
 export default auth((req) => {
   const { nextUrl } = req
@@ -8,7 +12,9 @@ export default auth((req) => {
   const isAuthPage = nextUrl.pathname.startsWith("/auth")
 
   if (isDashboard && !isLoggedIn) {
-    return NextResponse.redirect(new URL("/auth/signin", nextUrl))
+    const url = new URL("/auth/signin", nextUrl)
+    url.searchParams.set("callbackUrl", nextUrl.pathname)
+    return NextResponse.redirect(url)
   }
 
   if (isAuthPage && isLoggedIn) {
