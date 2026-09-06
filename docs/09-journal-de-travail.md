@@ -22,6 +22,7 @@
 - Premier essai de build sur le serveur : `spawn EAGAIN` pendant « Collecting page data » (limite de processus CloudLinux). Le build est désormais fait en local par `deploy.sh` et `.next` est synchronisé.
 - `prisma db push` a créé `SocialLink`, `Project` et `User.password` sur MySQL sans perte de données ; seed exécuté (profil `/p/demo` enrichi).
 - PM2 : application `linkfree` (port 3000) sauvegardée ; cron keepalive installé (`*/5 * * * *`).
+- Server actions en 500 « Failed to parse body as FormData » derrière le proxy : PHP consommait le corps multipart. Corrigé par `.user.ini` (`enable_post_data_reading = Off`) et un secours dans `proxy.php`. Validé par une soumission du formulaire de connexion (server action) : mauvais mot de passe → redirection d'erreur, bon mot de passe → session et dashboard.
 - Vérifié en HTTPS : accueil, `/p/demo`, `/api/health`, `/api/profiles/demo`, connexion, redirection du dashboard, fichiers `/_next/static` servis par Apache avec cache immutable, sources et `.env` inaccessibles.
 
 ### Procédure de déploiement

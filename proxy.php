@@ -44,7 +44,31 @@ foreach (getallheaders() as $name => $value) {
 curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
 
 if (!in_array($method, ['GET', 'HEAD', 'OPTIONS'], true)) {
-    curl_setopt($ch, CURLOPT_POSTFIELDS, file_get_contents('php://input'));
+    $body = file_get_contents('php://input');
+    $contentType = $_SERVER['CONTENT_TYPE'] ?? '';
+    // Sans enable_post_data_reading=Off (.user.ini), PHP consomme les corps
+    // multipart/form-data et php://input est vide : on reconstruit alors le
+    // corps à partir de $_POST / $_FILES avec une nouvelle frontière.
+    if ($body === '' && stripos($contentType, 'multipart/form-data') === 0 && (!empty($_POST) || !empty($_FILES))) {
+        $boundary = '----LinkfreeProxy' . bin2hex(random_bytes(12));
+        $body = '';
+        foreach ($_POST as $name => $value) {
+            foreach ((array) $value as $v) {
+                $body .= "--$boundary\r\nContent-Disposition: form-data; name=\"$name\"\r\n\r\n$v\r\n";
+            }
+        }
+        foreach ($_FILES as $name => $file) {
+            if (($file['error'] ?? UPLOAD_ERR_NO_FILE) !== UPLOAD_ERR_OK) continue;
+            $body .= "--$boundary\r\nContent-Disposition: form-data; name=\"$name\"; filename=\"" . addslashes($file['name']) . "\"\r\n"
+                . "Content-Type: " . ($file['type'] ?: 'application/octet-stream') . "\r\n\r\n"
+                . file_get_contents($file['tmp_name']) . "\r\n";
+        }
+        $body .= "--$boundary--\r\n";
+        $headers = array_values(array_filter($headers, fn($h) => stripos($h, 'Content-Type:') !== 0));
+        $headers[] = 'Content-Type: multipart/form-data; boundary=' . $boundary;
+        curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+    }
+    curl_setopt($ch, CURLOPT_POSTFIELDS, $body);
 }
 
 $response = curl_exec($ch);

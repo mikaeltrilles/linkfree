@@ -12,7 +12,7 @@ RewriteRule ^_next/static/(.*)$ .next/static/$1 [L]
 </IfModule>
 
 # Ne jamais exposer le code source, la configuration ni les logs
-RewriteRule ^(\.env|\.git|src/|prisma/|node_modules/|scripts/|logs/|ecosystem\.config\.js|package(-lock)?\.json|tsconfig|server\.js|deploy\.sh) - [F,L]
+RewriteRule ^(\.env|\.git|\.user\.ini|src/|prisma/|node_modules/|scripts/|logs/|ecosystem\.config\.js|package(-lock)?\.json|tsconfig|server\.js|deploy\.sh) - [F,L]
 RewriteRule ^\.next/(?!static/) - [F,L]
 
 # Tout le reste est proxyfié vers Next.js

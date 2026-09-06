@@ -35,7 +35,7 @@ Toutes les évolutions notables du projet sont consignées ici.
 
 ### Déploiement (cPanel o2switch)
 - `prisma/schema.prisma` : `binaryTargets = ["native", "debian-openssl-1.0.x"]` — le client généré ne correspondait pas au serveur, l'application ne démarrait plus.
-- `proxy.php` : conservation de tous les `Set-Cookie` (Auth.js en émet plusieurs, seul le dernier survivait), en-têtes `X-Forwarded-*`, timeouts.
+- `proxy.php` : conservation de tous les `Set-Cookie` (Auth.js en émet plusieurs, seul le dernier survivait), en-têtes `X-Forwarded-*`, timeouts. Les corps `multipart/form-data` (toutes les server actions) arrivaient vides car PHP les consomme avant `php://input` : `.user.ini` désactive `enable_post_data_reading` et le proxy reconstruit le corps depuis `$_POST`/`$_FILES` en secours.
 - `next.config.mjs` : `serverActions.allowedOrigins` pour le domaine public derrière le proxy.
 - `.htaccess` : fichiers `/_next/static` servis directement par Apache avec cache immutable.
 - Gestion du processus par PM2 (`ecosystem.config.js`) + `scripts/keepalive.sh` en cron toutes les 5 minutes.
