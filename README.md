@@ -10,7 +10,8 @@ Production : https://linkfree.tmktools.com — démo : https://linkfree.tmktools
 - **Liens** : boutons ordonnables par glisser-déposer, épinglage, sections, masquage, formulaire de contact natif (`#contact-form`).
 - **Réseaux sociaux** : icônes sous la bio (GitHub, LinkedIn, X, Instagram, YouTube, TikTok, Discord, WhatsApp, email…), détection automatique de la plateforme.
 - **Projets** : cartes avec description, lien, dépôt de code, image, tags, mise en avant et compteur de clics.
-- **Statistiques** : vues (dédupliquées), clics par lien et par projet, CTR, appareils, contacts reçus.
+- **Messages** : boîte de réception des messages du formulaire de contact (lu/non lu, réponse, suppression) et notification email ou Telegram à chaque nouveau message.
+- **Statistiques** : vues (dédupliquées), clics par lien et par projet, CTR, appareils.
 - **Auth** : email + mot de passe (scrypt), Google OAuth optionnel, inscription désactivable.
 - **QR code** et métadonnées Open Graph par profil.
 

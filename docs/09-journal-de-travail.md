@@ -32,8 +32,13 @@ cd project
 ```
 Sur le serveur : `npx pm2 ls`, logs dans `~/linkfree.tmktools.com/logs/`, cron keepalive toutes les 5 min.
 
+### Suite du 2026-09-06 — profil personnel, messages et notifications
+- Profil `/p/mikaeltrilles` créé et peuplé depuis le portfolio tmktools.com et les README des projets (9 réseaux, 3 liens, 12 projets). Script de peuplement non commité (données personnelles).
+- Mot de passe du compte personnel défini en base (hash scrypt de l'application).
+- Page Messages du dashboard + notification email (SMTP local 127.0.0.1:25, comme les autres applications du serveur) et Telegram optionnel.
+
 ### Reste à faire (pistes)
 - Upload d'images (avatar, projets) plutôt que des URL.
 - Thèmes et mode sombre de la page publique.
-- Export CSV des leads, courbes de trafic, tests A/B côté interface.
+- Export CSV des messages, courbes de trafic, tests A/B côté interface.
 - Rate limiting sur `/api/events` et `/api/leads`.

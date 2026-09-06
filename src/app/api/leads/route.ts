@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server"
 import { prisma } from "@/lib/prisma"
 import { z } from "zod"
+import { notifyNewLead } from "@/lib/notify"
 
 export const dynamic = "force-dynamic"
 
@@ -25,20 +26,33 @@ export async function POST(req: NextRequest) {
 
     const profile = await prisma.profile.findFirst({
       where: { id: data.profileId, status: "PUBLISHED" },
-      select: { id: true },
+      select: { id: true, slug: true, title: true, user: { select: { email: true } } },
     })
     if (!profile) return NextResponse.json({ ok: false }, { status: 404 })
 
-    await prisma.lead.create({
+    // Anti-abus simple : 5 messages max par email et par profil sur 10 minutes.
+    const recent = await prisma.lead.count({
+      where: {
+        profileId: profile.id,
+        email: data.email.toLowerCase(),
+        createdAt: { gte: new Date(Date.now() - 10 * 60 * 1000) },
+      },
+    })
+    if (recent >= 5) return NextResponse.json({ ok: false, error: "Trop de messages" }, { status: 429 })
+
+    const lead = await prisma.lead.create({
       data: {
         profileId: profile.id,
         email: data.email.toLowerCase(),
-        name: data.name || null,
-        message: data.message || null,
+        name: data.name?.trim() || null,
+        message: data.message?.trim() || null,
         consent: true,
         source: "form",
       },
     })
+
+    // La notification ne doit jamais faire échouer l'enregistrement.
+    await notifyNewLead({ lead, profile, ownerEmail: profile.user.email })
 
     return NextResponse.json({ ok: true })
   } catch (error) {

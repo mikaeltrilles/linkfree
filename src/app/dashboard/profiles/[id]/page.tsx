@@ -9,7 +9,8 @@ import { SocialLinksEditor } from "@/components/dashboard/SocialLinksEditor"
 import { ProjectsEditor } from "@/components/dashboard/ProjectsEditor"
 import { SectionsEditor } from "@/components/dashboard/SectionsEditor"
 import { PublishToggle } from "@/components/dashboard/PublishToggle"
-import { ArrowLeft, Settings, BarChart3, Eye, QrCode } from "lucide-react"
+import { ArrowLeft, Settings, BarChart3, Eye, QrCode, Mail } from "lucide-react"
+import { countUnreadLeads } from "@/lib/leads"
 
 export const dynamic = "force-dynamic"
 
@@ -28,6 +29,7 @@ export default async function ProfileEditPage({ params }: { params: { id: string
 
   if (!profile) notFound()
   const published = profile.status === "PUBLISHED"
+  const unread = await countUnreadLeads(user.id, profile.id)
 
   return (
     <div className="space-y-6">
@@ -53,6 +55,12 @@ export default async function ProfileEditPage({ params }: { params: { id: string
           <Link href={`/p/${profile.slug}/qr`} target="_blank">
             <Button variant="ghost" size="sm" disabled={!published}>
               <QrCode className="mr-2 h-4 w-4" />QR
+            </Button>
+          </Link>
+          <Link href={`/dashboard/messages?profile=${profile.id}`}>
+            <Button variant="ghost" size="sm">
+              <Mail className="mr-2 h-4 w-4" />Messages
+              {unread > 0 && <span className="ml-2 rounded-full bg-brand-500 px-1.5 text-[10px] font-semibold text-white">{unread}</span>}
             </Button>
           </Link>
           <Link href={`/dashboard/profiles/${profile.id}/analytics`}>

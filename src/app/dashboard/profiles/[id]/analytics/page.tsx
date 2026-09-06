@@ -182,8 +182,9 @@ export default async function AnalyticsPage({ params }: { params: { id: string }
 
         <Card>
           <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Mail className="h-4 w-4" /> Derniers contacts ({profile.leads.length})
+            <CardTitle className="flex items-center justify-between gap-2">
+              <span className="flex items-center gap-2"><Mail className="h-4 w-4" /> Derniers contacts ({profile.leads.length})</span>
+              <Link href={`/dashboard/messages?profile=${profile.id}`} className="text-xs font-normal text-brand-600 hover:underline">Tous les messages</Link>
             </CardTitle>
           </CardHeader>
           <CardContent>

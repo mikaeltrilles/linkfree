@@ -2,6 +2,16 @@
 
 Toutes les évolutions notables du projet sont consignées ici.
 
+## [0.9.1] — 2026-09-06
+
+### Nouveautés
+- **Messages** : nouvelle page `/dashboard/messages` listant tous les messages reçus via le formulaire de contact (contenu complet, non lus en premier, filtre par profil, marquer lu/non lu, tout marquer comme lu, supprimer, bouton Répondre). Badge de non-lus dans la barre latérale, l'en-tête et la page d'édition du profil.
+- **Notification** à chaque nouveau message : email au propriétaire du profil (SMTP local de l'hébergeur par défaut, `NOTIFY_EMAIL_TO`, `MAIL_FROM` et `SMTP_*` pour surcharger) et Telegram si `TELEGRAM_BOT_TOKEN` / `TELEGRAM_CHAT_ID` sont renseignés. L'échec d'une notification n'empêche jamais l'enregistrement du message.
+- Champ `Lead.readAt` (schéma), limite de 5 messages par email et par profil sur 10 minutes.
+
+### Technique
+- `@auth/prisma-adapter` 1.6 → 2.11.2 pour s'aligner sur le `@auth/core` de next-auth, ce qui permet d'installer `nodemailer` 7.
+
 ## [0.9.0] — 2026-09-06
 
 ### Nouveautés

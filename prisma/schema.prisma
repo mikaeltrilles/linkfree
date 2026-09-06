@@ -217,16 +217,17 @@ model Order {
 
 // ─── LEADS ───
 model Lead {
-  id        String   @id @default(cuid())
+  id        String    @id @default(cuid())
   profileId String
   email     String
   name      String?
   tags      String? // comma-separated
   message   String?
-  consent   Boolean  @default(false)
+  consent   Boolean   @default(false)
   source    String?
   metadata  String? // JSON string
-  createdAt DateTime @default(now())
+  readAt    DateTime?
+  createdAt DateTime  @default(now())
 
   profile Profile @relation(fields: [profileId], references: [id], onDelete: Cascade)
 }
