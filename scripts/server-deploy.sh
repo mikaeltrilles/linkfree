@@ -18,9 +18,13 @@ npx prisma generate
 echo "[3/5] Schéma base de données (prisma db push)…"
 npx prisma db push --skip-generate
 
-echo "[4/5] Build Next.js…"
-rm -rf .next
-npm run build
+if [ "${SKIP_BUILD:-0}" = "1" ]; then
+  echo "[4/5] Build fourni par le poste local (.next synchronisé), étape ignorée."
+else
+  echo "[4/5] Build Next.js…"
+  rm -rf .next
+  npm run build
+fi
 
 echo "[5/5] Redémarrage PM2…"
 npx pm2 startOrRestart ecosystem.config.js --update-env

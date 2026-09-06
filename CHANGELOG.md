@@ -39,7 +39,7 @@ Toutes les évolutions notables du projet sont consignées ici.
 - `next.config.mjs` : `serverActions.allowedOrigins` pour le domaine public derrière le proxy.
 - `.htaccess` : fichiers `/_next/static` servis directement par Apache avec cache immutable.
 - Gestion du processus par PM2 (`ecosystem.config.js`) + `scripts/keepalive.sh` en cron toutes les 5 minutes.
-- `deploy.sh` (poste local → rsync → `scripts/server-deploy.sh` : npm ci, prisma generate, db push, build, PM2).
+- `deploy.sh` : build Next.js effectué en local avec les variables publiques de production (l'hébergement mutualisé refuse les processus que `next build` lance : `spawn EAGAIN`), puis rsync des sources et de `.next` → `scripts/server-deploy.sh` (npm ci, prisma generate pour la plateforme du serveur, db push, PM2).
 - `server.js` : écoute sur 127.0.0.1, ignore les `ECONNRESET` du proxy.
 - Docker : image sans `standalone`, MariaDB dans `docker-compose.yml` (le schéma est MySQL).
 

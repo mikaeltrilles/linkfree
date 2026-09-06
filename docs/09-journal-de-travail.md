@@ -18,10 +18,16 @@
 7. **Hébergement** : `proxy.php` corrigé, `.htaccess` (statique + protection des sources), `server.js`, `ecosystem.config.js`, `scripts/keepalive.sh`, `scripts/server-deploy.sh`, `deploy.sh`, `/api/health`.
 8. **Tests locaux** : MySQL 8 éphémère, `prisma db push`, seed, `next build`, serveur en mode production ; vérifié : pages publiques (200/404), QR, API profil, connexion (bon et mauvais mot de passe), dashboard, événements (vue, clic lien, clic projet), lead + honeypot.
 
+### Mise en production (2026-09-06)
+- Premier essai de build sur le serveur : `spawn EAGAIN` pendant « Collecting page data » (limite de processus CloudLinux). Le build est désormais fait en local par `deploy.sh` et `.next` est synchronisé.
+- `prisma db push` a créé `SocialLink`, `Project` et `User.password` sur MySQL sans perte de données ; seed exécuté (profil `/p/demo` enrichi).
+- PM2 : application `linkfree` (port 3000) sauvegardée ; cron keepalive installé (`*/5 * * * *`).
+- Vérifié en HTTPS : accueil, `/p/demo`, `/api/health`, `/api/profiles/demo`, connexion, redirection du dashboard, fichiers `/_next/static` servis par Apache avec cache immutable, sources et `.env` inaccessibles.
+
 ### Procédure de déploiement
 ```bash
 cd project
-./deploy.sh          # rsync vers o2switch puis scripts/server-deploy.sh
+./deploy.sh          # build local, rsync vers o2switch, scripts/server-deploy.sh
 ```
 Sur le serveur : `npx pm2 ls`, logs dans `~/linkfree.tmktools.com/logs/`, cron keepalive toutes les 5 min.
 
