@@ -1,4 +1,20 @@
 Options -Indexes
 RewriteEngine On
 RewriteBase /
+
+# Fichiers statiques du build servis directement par Apache (sans passer par PHP)
+RewriteCond %{DOCUMENT_ROOT}/.next/static%{REQUEST_URI} -f
+RewriteRule ^_next/static/(.*)$ .next/static/$1 [L]
+<IfModule mod_headers.c>
+  <FilesMatch "\.(js|css|woff2?)$">
+    Header set Cache-Control "public, max-age=31536000, immutable"
+  </FilesMatch>
+</IfModule>
+
+# Ne jamais exposer le code source, la configuration ni les logs
+RewriteRule ^(\.env|\.git|src|prisma|node_modules|scripts|logs|ecosystem\.config\.js|package(-lock)?\.json|tsconfig.*|server\.js|deploy\.sh) - [F,L]
+RewriteRule ^\.next/(?!static/) - [F,L]
+
+# Tout le reste est proxyfié vers Next.js
+RewriteCond %{REQUEST_URI} !^/proxy\.php$
 RewriteRule ^(.*)$ proxy.php [QSA,L]

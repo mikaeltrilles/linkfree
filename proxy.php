@@ -1,50 +1,81 @@
 <?php
-// Simple reverse proxy to Node.js app running on localhost:3000
-$target = 'http://localhost:3000' . $_SERVER['REQUEST_URI'];
+/**
+ * Reverse proxy minimal cPanel (Apache + PHP) -> application Next.js sur 127.0.0.1:3000.
+ *
+ * - Transmet la méthode, les en-têtes et le corps de la requête.
+ * - Ajoute les en-têtes X-Forwarded-* (nécessaires aux server actions Next.js
+ *   et au hash d'IP des statistiques).
+ * - Conserve TOUS les en-têtes Set-Cookie (Auth.js en émet plusieurs).
+ */
+$upstream = 'http://127.0.0.1:3000';
+$target = $upstream . $_SERVER['REQUEST_URI'];
+$method = $_SERVER['REQUEST_METHOD'];
 
 $ch = curl_init($target);
-curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-curl_setopt($ch, CURLOPT_HEADER, true);
-curl_setopt($ch, CURLOPT_FOLLOWLOCATION, false);
+curl_setopt_array($ch, [
+    CURLOPT_RETURNTRANSFER => true,
+    CURLOPT_HEADER => true,
+    CURLOPT_FOLLOWLOCATION => false,
+    CURLOPT_CUSTOMREQUEST => $method,
+    CURLOPT_CONNECTTIMEOUT => 5,
+    CURLOPT_TIMEOUT => 60,
+    // On laisse Next répondre en clair : PHP/Apache gèrent la compression.
+    CURLOPT_ENCODING => '',
+]);
 
-// Forward method
-$method = $_SERVER['REQUEST_METHOD'];
-curl_setopt($ch, CURLOPT_CUSTOMREQUEST, $method);
+$host = $_SERVER['HTTP_HOST'] ?? 'localhost';
+$proto = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https' : 'http';
+$clientIp = $_SERVER['REMOTE_ADDR'] ?? '';
 
-// Forward headers
-$headers = [];
+$headers = [
+    'Host: ' . $host,
+    'X-Forwarded-Host: ' . $host,
+    'X-Forwarded-Proto: ' . $proto,
+    'X-Forwarded-For: ' . $clientIp,
+    'X-Real-IP: ' . $clientIp,
+];
 foreach (getallheaders() as $name => $value) {
-    if (strtolower($name) === 'host') {
-        $headers[] = 'Host: localhost:3000';
-    } else {
-        $headers[] = "$name: $value";
+    $lower = strtolower($name);
+    if (in_array($lower, ['host', 'x-forwarded-host', 'x-forwarded-proto', 'x-forwarded-for', 'x-real-ip', 'accept-encoding', 'content-length', 'expect'], true)) {
+        continue;
     }
+    $headers[] = "$name: $value";
 }
 curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
 
-// Forward body for POST/PUT/PATCH
-if (in_array($method, ['POST', 'PUT', 'PATCH'])) {
+if (!in_array($method, ['GET', 'HEAD', 'OPTIONS'], true)) {
     curl_setopt($ch, CURLOPT_POSTFIELDS, file_get_contents('php://input'));
 }
 
 $response = curl_exec($ch);
 if ($response === false) {
     http_response_code(502);
-    echo 'Bad Gateway: ' . curl_error($ch);
+    header('Content-Type: text/plain; charset=utf-8');
+    echo "Bad Gateway: l'application est indisponible (" . curl_error($ch) . ")";
     curl_close($ch);
     exit;
 }
 
 $headerSize = curl_getinfo($ch, CURLINFO_HEADER_SIZE);
-$headersRaw = substr($response, 0, $headerSize);
+$statusCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+$rawHeaders = substr($response, 0, $headerSize);
 $body = substr($response, $headerSize);
+curl_close($ch);
 
-foreach (explode("\r\n", $headersRaw) as $header) {
-    if (stripos($header, 'Transfer-Encoding:') === 0) continue;
-    if (stripos($header, 'Connection:') === 0) continue;
-    if ($header) header($header);
+http_response_code($statusCode);
+
+// Seul le dernier bloc d'en-têtes compte (cURL peut en renvoyer plusieurs, ex. 100 Continue).
+$blocks = preg_split("/\r\n\r\n/", trim($rawHeaders));
+$lastBlock = end($blocks);
+foreach (explode("\r\n", $lastBlock) as $line) {
+    if ($line === '' || stripos($line, 'HTTP/') === 0) continue;
+    $lower = strtolower($line);
+    if (strpos($lower, 'transfer-encoding:') === 0) continue;
+    if (strpos($lower, 'connection:') === 0) continue;
+    if (strpos($lower, 'content-encoding:') === 0) continue;
+    if (strpos($lower, 'content-length:') === 0) continue;
+    // replace=false pour cumuler les Set-Cookie au lieu de les écraser.
+    header($line, strpos($lower, 'set-cookie:') !== 0);
 }
 
-http_response_code(curl_getinfo($ch, CURLINFO_HTTP_CODE));
 echo $body;
-curl_close($ch);
