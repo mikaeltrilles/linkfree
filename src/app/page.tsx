@@ -75,6 +75,11 @@ export default function HomePage() {
         <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
           {[
             {
+              icon: Layers,
+              title: "Réseaux & projets",
+              desc: "Vos icônes de réseaux sociaux sous la bio, vos projets en cartes avec image, tags et lien vers le code.",
+            },
+            {
               icon: Zap,
               title: "Smart Sections",
               desc: "Affichez des blocs conditionnels selon l'heure, le pays ou le device de vos visiteurs.",

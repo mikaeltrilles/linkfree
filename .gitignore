@@ -35,3 +35,9 @@ prisma/migrations/
 
 # Misc
 *.log
+
+# TypeScript
+*.tsbuildinfo
+
+# PM2 / serveur
+logs/
