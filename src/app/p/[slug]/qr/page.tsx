@@ -1,15 +1,19 @@
 import { prisma } from "@/lib/prisma"
 import { notFound } from "next/navigation"
 import { QRCodeSVG } from "qrcode.react"
+import Link from "next/link"
+
+export const dynamic = "force-dynamic"
 
 export default async function QRPage({ params }: { params: { slug: string } }) {
   const profile = await prisma.profile.findUnique({
     where: { slug: params.slug },
+    select: { slug: true, title: true, status: true },
   })
 
   if (!profile || profile.status !== "PUBLISHED") notFound()
 
-  const url = `${process.env.NEXT_PUBLIC_APP_URL || "https://linkfree.app"}/p/${profile.slug}`
+  const url = `${process.env.NEXT_PUBLIC_APP_URL || "https://linkfree.tmktools.com"}/p/${profile.slug}`
 
   return (
     <div className="flex min-h-screen flex-col items-center justify-center bg-muted/30 px-4">
@@ -20,6 +24,9 @@ export default async function QRPage({ params }: { params: { slug: string } }) {
           <QRCodeSVG value={url} size={240} level="M" includeMargin />
         </div>
         <p className="mt-4 text-xs text-muted-foreground">{url}</p>
+        <Link href={`/p/${profile.slug}`} className="mt-6 inline-block text-sm underline underline-offset-4">
+          Retour à la page
+        </Link>
       </div>
     </div>
   )

@@ -25,6 +25,7 @@ export function ContactForm({ profileId }: { profileId: string }) {
           name: formData.get("name"),
           message: formData.get("message"),
           consent: formData.get("consent") === "on",
+          website: formData.get("website"),
         }),
       })
       setSent(true)
@@ -49,6 +50,8 @@ export function ContactForm({ profileId }: { profileId: string }) {
 
   return (
     <form onSubmit={handleSubmit} className="space-y-3">
+      {/* Honeypot anti-spam : invisible pour les humains */}
+      <input type="text" name="website" tabIndex={-1} autoComplete="off" className="hidden" aria-hidden="true" />
       <div className="space-y-2">
         <Label htmlFor="contact-name" className="text-xs">Nom</Label>
         <Input id="contact-name" name="name" placeholder="Votre nom" required />

@@ -1,7 +1,5 @@
 "use client"
 
-import Link from "next/link"
-import Image from "next/image"
 import {
   ExternalLink,
   Mail,
@@ -67,17 +65,18 @@ export function LinkButton({
 }: LinkButtonProps) {
   const Icon = getLinkIcon(link.url)
 
-  const handleClick = async () => {
+  const handleClick = () => {
+    // sendBeacon survit à la navigation vers le lien externe.
     try {
-      await fetch(`/api/events`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          profileId,
-          linkId: link.id,
-          type: "CLICK",
-        }),
-      })
+      const payload = JSON.stringify({ profileId, linkId: link.id, type: "CLICK" })
+      if (!navigator.sendBeacon?.("/api/events", new Blob([payload], { type: "application/json" }))) {
+        fetch("/api/events", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: payload,
+          keepalive: true,
+        }).catch(() => {})
+      }
     } catch {
       // Silencieux
     }
@@ -85,9 +84,9 @@ export function LinkButton({
 
   if (variant === "pinned") {
     return (
-      <Link
+      <a
         href={link.url}
-        target="_blank"
+        target={link.url.startsWith("mailto:") ? undefined : "_blank"}
         rel="noopener noreferrer"
         onClick={handleClick}
         className="linktree-btn-solid group"
@@ -95,9 +94,8 @@ export function LinkButton({
       >
         <div className="absolute left-4 flex items-center">
           {link.thumbnail ? (
-            <div className="relative h-6 w-6 overflow-hidden rounded-md">
-              <Image src={link.thumbnail} alt="" fill className="object-cover" />
-            </div>
+            // eslint-disable-next-line @next/next/no-img-element
+            <img src={link.thumbnail} alt="" className="h-6 w-6 rounded-md object-cover" />
           ) : (
             <Icon className="h-5 w-5" />
           )}
@@ -111,23 +109,22 @@ export function LinkButton({
         <div className="absolute right-4 flex items-center">
           <ChevronRight className="h-4 w-4 text-white/60 transition group-hover:translate-x-0.5" />
         </div>
-      </Link>
+      </a>
     )
   }
 
   return (
-    <Link
+    <a
       href={link.url}
-      target="_blank"
+      target={link.url.startsWith("mailto:") ? undefined : "_blank"}
       rel="noopener noreferrer"
       onClick={handleClick}
       className="linktree-btn group"
     >
       <div className="absolute left-4 flex items-center">
         {link.thumbnail ? (
-          <div className="relative h-6 w-6 overflow-hidden rounded-md">
-            <Image src={link.thumbnail} alt="" fill className="object-cover" />
-          </div>
+          // eslint-disable-next-line @next/next/no-img-element
+          <img src={link.thumbnail} alt="" className="h-6 w-6 rounded-md object-cover" />
         ) : (
           <Icon className="h-5 w-5 text-black/40 transition group-hover:text-black/60" />
         )}
@@ -140,6 +137,6 @@ export function LinkButton({
       <div className="absolute right-4 flex items-center">
         <ChevronRight className="h-4 w-4 text-black/20 transition group-hover:translate-x-0.5 group-hover:text-black/40" />
       </div>
-    </Link>
+    </a>
   )
 }

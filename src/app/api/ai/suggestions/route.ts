@@ -1,22 +1,28 @@
 import { NextRequest, NextResponse } from "next/server"
 import { prisma } from "@/lib/prisma"
+import { auth } from "@/lib/auth"
+
+export const dynamic = "force-dynamic"
 
 export async function GET(req: NextRequest) {
-  const { searchParams } = new URL(req.url)
-  const profileId = searchParams.get("profileId")
+  const session = await auth()
+  if (!session?.user?.id) {
+    return NextResponse.json({ error: "Non authentifié" }, { status: 401 })
+  }
 
+  const profileId = new URL(req.url).searchParams.get("profileId")
   if (!profileId) {
     return NextResponse.json({ error: "profileId requis" }, { status: 400 })
   }
 
   const links = await prisma.link.findMany({
-    where: { profileId },
+    where: { profileId, profile: { userId: session.user.id } },
     orderBy: { clickCount: "asc" },
     take: 5,
   })
 
   const suggestions = links.map((link) => {
-    const tips = []
+    const tips: string[] = []
     if (link.clickCount < 10) {
       tips.push("Ce lien a peu de clics. Essayez une miniature ou un titre plus accrocheur.")
     }
