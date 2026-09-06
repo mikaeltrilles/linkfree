@@ -1,42 +1,27 @@
-import { auth } from "@/lib/auth"
+import Link from "next/link"
 import { redirect } from "next/navigation"
-import { prisma } from "@/lib/prisma"
+import { requireUser } from "@/lib/session"
+import { createProfile } from "@/lib/actions/profile"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
+import { Textarea } from "@/components/ui/textarea"
+import { FormError } from "@/components/dashboard/FormError"
 import { ArrowLeft } from "lucide-react"
-import Link from "next/link"
 
-export default async function NewProfilePage() {
-  const session = await auth()
-  if (!session?.user?.id) redirect("/auth/signin")
-  const userId = session.user.id
+export const dynamic = "force-dynamic"
 
-  async function createProfile(formData: FormData) {
+export default async function NewProfilePage({ searchParams }: { searchParams: { error?: string } }) {
+  await requireUser()
+
+  async function create(formData: FormData) {
     "use server"
-    const title = formData.get("title") as string
-    const slug = formData.get("slug") as string
-    const bio = formData.get("bio") as string
-
-    if (!slug || !/^[a-z0-9-]+$/.test(slug)) {
-      throw new Error("Slug invalide")
+    const result = await createProfile(formData)
+    if (!result.ok) {
+      redirect(`/dashboard/profiles/new?error=${encodeURIComponent(result.error)}`)
     }
-
-    const existing = await prisma.profile.findUnique({ where: { slug } })
-    if (existing) throw new Error("Ce slug est déjà pris")
-
-    await prisma.profile.create({
-      data: {
-        userId,
-        slug,
-        title,
-        bio,
-        status: "DRAFT",
-      },
-    })
-
-    redirect("/dashboard")
+    redirect(`/dashboard/profiles/${result.id}`)
   }
 
   return (
@@ -55,33 +40,28 @@ export default async function NewProfilePage() {
           <CardTitle>Informations de base</CardTitle>
         </CardHeader>
         <CardContent>
-          <form action={createProfile} className="space-y-4">
+          <form action={create} className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="slug">Slug public</Label>
+              <Label htmlFor="slug">Adresse de la page</Label>
               <div className="flex items-center gap-2">
                 <span className="text-sm text-muted-foreground">/p/</span>
-                <Input
-                  id="slug"
-                  name="slug"
-                  placeholder="alice-design"
-                  pattern="[a-z0-9-]+"
-                  required
-                />
+                <Input id="slug" name="slug" placeholder="mon-nom" required minLength={3} maxLength={40} pattern="[a-zA-Z0-9-]+" />
               </div>
-              <p className="text-xs text-muted-foreground">Lettres minuscules, chiffres et tirets uniquement.</p>
+              <p className="text-xs text-muted-foreground">Lettres, chiffres et tirets. Modifiable plus tard.</p>
             </div>
-
             <div className="space-y-2">
               <Label htmlFor="title">Nom affiché</Label>
-              <Input id="title" name="title" placeholder="Alice Dupont" />
+              <Input id="title" name="title" placeholder="Alice Dupont" maxLength={80} />
             </div>
-
             <div className="space-y-2">
               <Label htmlFor="bio">Bio</Label>
-              <Input id="bio" name="bio" placeholder="Designer UX &amp; Product..." />
+              <Textarea id="bio" name="bio" placeholder="Designer produit · Freelance" maxLength={300} rows={3} />
             </div>
-
+            <FormError message={searchParams.error ?? null} />
             <Button type="submit" className="w-full">Créer le profil</Button>
+            <p className="text-center text-xs text-muted-foreground">
+              Le profil est créé en brouillon : publiez-le quand il est prêt.
+            </p>
           </form>
         </CardContent>
       </Card>
