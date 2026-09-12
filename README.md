@@ -44,6 +44,8 @@ Scripts utiles : `npm run typecheck`, `npm run build`, `npm run db:studio`.
 
 Le script synchronise les sources par rsync (hors `node_modules`, `.next`, `.env`) puis exécute `scripts/server-deploy.sh` sur le serveur : `npm ci`, `prisma generate`, `prisma db push`, `next build`, redémarrage PM2 (`ecosystem.config.js`). Le fichier `.env` du serveur n'est jamais écrasé.
 
+Les notifications email partent par le SMTP de l'hébergeur avec la boîte `noreply@linkfree.tmktools.com` (créée dans cPanel) ; les clés `NOTIFY_EMAIL_TO`, `MAIL_FROM` et `SMTP_*` sont dans le `.env` du serveur.
+
 Apache transmet toutes les requêtes à `proxy.php`, qui relaie vers Node sur `127.0.0.1:3000` ; les fichiers `/_next/static` sont servis directement. `scripts/keepalive.sh` (cron toutes les 5 minutes) relance l'application si `/api/health` ne répond plus.
 
 ## Docker
