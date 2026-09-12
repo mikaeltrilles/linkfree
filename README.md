@@ -84,6 +84,7 @@ project/
 
 - `CHANGELOG.md` — évolutions par version
 - `docs/09-journal-de-travail.md` — journal des interventions
+- `docs/10-exploitation.md` — guide d'exploitation (déploiement, redémarrage, logs, comptes, email, dépannage)
 
 ## Licence
 

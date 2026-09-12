@@ -48,9 +48,16 @@ Sur le serveur : `npx pm2 ls`, logs dans `~/linkfree.tmktools.com/logs/`, cron k
 - `.env` du serveur : `NOTIFY_EMAIL_TO=mikaeltrilles@gmail.com`, `MAIL_FROM`, `SMTP_HOST=127.0.0.1`, `SMTP_PORT=465`, `SMTP_USER`, `SMTP_PASSWORD` (mot de passe généré sur le serveur, jamais affiché). Sauvegarde `.env.bak-*` conservée.
 - Vérifié : envoi authentifié accepté (`250 OK`), message reçu dans `tmk@tmktools.com` avec l'expéditeur attendu, aucun retour d'erreur dans la boîte `noreply`. L'API cPanel EmailTrack n'est pas disponible sur cet hébergement : la remise finale chez Gmail se constate dans la boîte.
 
+### 2026-09-13 — mot de passe et profil (hors dépôt)
+- Mot de passe du compte mikaeltrilles@gmail.com défini en base (hash scrypt), vérifié par une connexion réelle.
+- Profil `/p/mikaeltrilles` porté à 18 projets (HNR et TMK CRM mis en avant).
+
 ### 2026-09-13 — crash à la suppression d'un message, modale de confirmation
 - Cause : `await action()` dans `startTransition` ; la revalidation remplaçait l'arbre et la promesse se résolvait sans valeur. Corrigé dans MessageList (action attendue hors transition) et durci dans `useEditorList`.
 - `window.confirm` / `alert` retirés du dashboard au profit d'une modale Radix partagée.
+
+### 2026-09-13 — consignation
+- Guide d'exploitation `docs/10-exploitation.md` : emplacements, comptes, déploiement, redémarrage, chaîne HTTP, variables du `.env`, messages, dépannage, historique des versions.
 
 ### Reste à faire (pistes)
 - Upload d'images (avatar, projets) plutôt que des URL.
