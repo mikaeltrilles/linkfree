@@ -8,6 +8,7 @@ import { SortableList } from "./SortableList"
 import { LinkListItem, LinkFormFields, type EditableLink, type SectionOption } from "./LinkListItem"
 import { FormError } from "./FormError"
 import { useEditorList } from "./useEditorList"
+import { useConfirm } from "./ConfirmDialog"
 import { createLink, deleteLink, reorderLinks, toggleLinkStatus } from "@/lib/actions/links"
 
 interface LinkListEditorProps {
@@ -18,6 +19,7 @@ interface LinkListEditorProps {
 
 export function LinkListEditor({ profileId, initialLinks, sections }: LinkListEditorProps) {
   const { items, setItems, error, run } = useEditorList(initialLinks)
+  const confirm = useConfirm()
   const [open, setOpen] = useState(false)
   const [createError, setCreateError] = useState<string | null>(null)
 
@@ -72,9 +74,9 @@ export function LinkListEditor({ profileId, initialLinks, sections }: LinkListEd
             sections={sections}
             onSaved={() => run(async () => ({ ok: true }))}
             onToggle={() => run(() => toggleLinkStatus(link.id))}
-            onDelete={() => {
-              if (!confirm(`Supprimer le lien « ${link.title} » ?`)) return
-              run(() => deleteLink(link.id), () => setItems((prev) => prev.filter((l) => l.id !== link.id)))
+            onDelete={async () => {
+              const ok = await confirm({ title: "Supprimer ce lien ?", description: `« ${link.title} » disparaîtra de votre page. Ses statistiques de clics seront perdues.`, confirmLabel: "Supprimer", destructive: true })
+              if (ok) run(() => deleteLink(link.id), () => setItems((prev) => prev.filter((l) => l.id !== link.id)))
             }}
           />
         )}

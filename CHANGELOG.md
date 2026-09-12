@@ -2,6 +2,14 @@
 
 Toutes les évolutions notables du projet sont consignées ici.
 
+## [0.9.3] — 2026-09-13
+
+### Corrections
+- Page Messages : la suppression d'un message provoquait « Application error: a client-side exception » (`Cannot read properties of undefined (reading 'ok')`). L'action serveur était attendue à l'intérieur d'une transition React : quand la revalidation remplaçait l'arbre, sa valeur de retour était perdue. L'action est désormais attendue avant la transition de rafraîchissement, et tous les éditeurs tolèrent un retour vide.
+
+### Interface
+- Les boîtes de confirmation du navigateur (`window.confirm`, `alert`) sont remplacées par une modale intégrée (`ConfirmProvider` / `useConfirm`) : suppression de message, lien, réseau, projet, section et profil, avec titre, explication des conséquences et bouton rouge. Le bouton Publié/Brouillon affiche son erreur en ligne.
+
 ## [0.9.2] — 2026-09-12
 
 ### Performance de la page publique

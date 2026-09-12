@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation"
 import { Mail, MailOpen, Trash2, Reply, CheckCheck } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { FormError } from "./FormError"
+import { useConfirm } from "./ConfirmDialog"
 import { deleteLead, markAllLeadsRead, markLeadRead } from "@/lib/actions/leads"
 import { cn } from "@/lib/utils"
 
@@ -20,17 +21,27 @@ export type MessageItem = {
 
 export function MessageList({ messages, profileId }: { messages: MessageItem[]; profileId?: string }) {
   const router = useRouter()
+  const confirm = useConfirm()
   const [error, setError] = useState<string | null>(null)
-  const [pending, startTransition] = useTransition()
+  const [busy, setBusy] = useState(false)
+  const [refreshing, startTransition] = useTransition()
+  const pending = busy || refreshing
   const unread = messages.filter((m) => !m.readAt).length
 
-  function run(action: () => Promise<{ ok: boolean; error?: string }>) {
+  // L'action est attendue hors de la transition : appelée dedans, sa valeur de
+  // retour peut être perdue quand la revalidation remplace l'arbre React.
+  async function run(action: () => Promise<{ ok: boolean; error?: string } | undefined>) {
     setError(null)
-    startTransition(async () => {
+    setBusy(true)
+    try {
       const result = await action()
-      if (!result.ok) setError(result.error ?? "Erreur")
-      router.refresh()
-    })
+      if (result && !result.ok) setError(result.error ?? "Une erreur est survenue.")
+    } catch {
+      setError("Une erreur est survenue.")
+    } finally {
+      setBusy(false)
+      startTransition(() => router.refresh())
+    }
   }
 
   if (messages.length === 0) {
@@ -102,9 +113,14 @@ export function MessageList({ messages, profileId }: { messages: MessageItem[]; 
                     className="h-8 w-8 text-destructive"
                     title="Supprimer"
                     disabled={pending}
-                    onClick={() => {
-                      if (!confirm(`Supprimer le message de ${m.name || m.email} ?`)) return
-                      run(() => deleteLead(m.id))
+                    onClick={async () => {
+                      const ok = await confirm({
+                        title: "Supprimer ce message ?",
+                        description: `Le message de ${m.name || m.email} sera définitivement supprimé.`,
+                        confirmLabel: "Supprimer",
+                        destructive: true,
+                      })
+                      if (ok) run(() => deleteLead(m.id))
                     }}
                   >
                     <Trash2 className="h-4 w-4" />

@@ -10,6 +10,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { SortableList } from "./SortableList"
 import { FormError } from "./FormError"
 import { useEditorList } from "./useEditorList"
+import { useConfirm } from "./ConfirmDialog"
 import {
   createProject,
   deleteProject,
@@ -72,6 +73,7 @@ function ProjectFormFields({ idPrefix, project }: { idPrefix: string; project?: 
 
 export function ProjectsEditor({ profileId, initialProjects }: { profileId: string; initialProjects: EditableProject[] }) {
   const { items, setItems, error, run } = useEditorList(initialProjects)
+  const confirm = useConfirm()
   const [open, setOpen] = useState(false)
   const [createError, setCreateError] = useState<string | null>(null)
   const [editing, setEditing] = useState<EditableProject | null>(null)
@@ -154,9 +156,9 @@ export function ProjectsEditor({ profileId, initialProjects }: { profileId: stri
                 size="icon"
                 className="h-8 w-8 text-destructive"
                 title="Supprimer"
-                onClick={() => {
-                  if (!confirm(`Supprimer le projet « ${project.title} » ?`)) return
-                  run(() => deleteProject(project.id), () => setItems((prev) => prev.filter((p) => p.id !== project.id)))
+                onClick={async () => {
+                  const ok = await confirm({ title: "Supprimer ce projet ?", description: `« ${project.title} » sera retiré de votre page.`, confirmLabel: "Supprimer", destructive: true })
+                  if (ok) run(() => deleteProject(project.id), () => setItems((prev) => prev.filter((p) => p.id !== project.id)))
                 }}
               >
                 <Trash2 className="h-4 w-4" />

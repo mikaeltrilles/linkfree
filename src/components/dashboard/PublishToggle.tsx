@@ -10,6 +10,7 @@ export function PublishToggle({ profileId, published }: { profileId: string; pub
   const router = useRouter()
   const [checked, setChecked] = useState(published)
   const [pending, startTransition] = useTransition()
+  const [error, setError] = useState<string | null>(null)
 
   return (
     <div className="flex items-center gap-2">
@@ -19,11 +20,12 @@ export function PublishToggle({ profileId, published }: { profileId: string; pub
         disabled={pending}
         onCheckedChange={(next) => {
           setChecked(next)
+          setError(null)
           startTransition(async () => {
             const result = await setProfileStatus(profileId, next)
-            if (!result.ok) {
+            if (result && !result.ok) {
               setChecked(!next)
-              alert(result.error)
+              setError(result.error)
               return
             }
             router.refresh()
@@ -33,6 +35,7 @@ export function PublishToggle({ profileId, published }: { profileId: string; pub
       <Label htmlFor={`publish-${profileId}`} className="text-sm">
         {checked ? <span className="font-medium text-emerald-600">Publié</span> : <span className="text-muted-foreground">Brouillon</span>}
       </Label>
+      {error && <span role="alert" className="text-xs text-red-600">{error}</span>}
     </div>
   )
 }

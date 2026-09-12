@@ -48,6 +48,10 @@ Sur le serveur : `npx pm2 ls`, logs dans `~/linkfree.tmktools.com/logs/`, cron k
 - `.env` du serveur : `NOTIFY_EMAIL_TO=mikaeltrilles@gmail.com`, `MAIL_FROM`, `SMTP_HOST=127.0.0.1`, `SMTP_PORT=465`, `SMTP_USER`, `SMTP_PASSWORD` (mot de passe généré sur le serveur, jamais affiché). Sauvegarde `.env.bak-*` conservée.
 - Vérifié : envoi authentifié accepté (`250 OK`), message reçu dans `tmk@tmktools.com` avec l'expéditeur attendu, aucun retour d'erreur dans la boîte `noreply`. L'API cPanel EmailTrack n'est pas disponible sur cet hébergement : la remise finale chez Gmail se constate dans la boîte.
 
+### 2026-09-13 — crash à la suppression d'un message, modale de confirmation
+- Cause : `await action()` dans `startTransition` ; la revalidation remplaçait l'arbre et la promesse se résolvait sans valeur. Corrigé dans MessageList (action attendue hors transition) et durci dans `useEditorList`.
+- `window.confirm` / `alert` retirés du dashboard au profit d'une modale Radix partagée.
+
 ### Reste à faire (pistes)
 - Upload d'images (avatar, projets) plutôt que des URL.
 - Thèmes et mode sombre de la page publique.

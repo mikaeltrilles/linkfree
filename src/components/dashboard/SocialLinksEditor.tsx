@@ -11,6 +11,7 @@ import { SocialIcon } from "@/components/public/SocialIcon"
 import { SortableList } from "./SortableList"
 import { FormError } from "./FormError"
 import { useEditorList } from "./useEditorList"
+import { useConfirm } from "./ConfirmDialog"
 import { SOCIAL_PLATFORMS, detectPlatform, getPlatform } from "@/lib/social-platforms"
 import {
   createSocialLink,
@@ -76,6 +77,7 @@ function SocialFormFields({ idPrefix, social }: { idPrefix: string; social?: Edi
 
 export function SocialLinksEditor({ profileId, initialSocials }: { profileId: string; initialSocials: EditableSocial[] }) {
   const { items, setItems, error, run } = useEditorList(initialSocials)
+  const confirm = useConfirm()
   const [open, setOpen] = useState(false)
   const [createError, setCreateError] = useState<string | null>(null)
   const [editing, setEditing] = useState<EditableSocial | null>(null)
@@ -147,9 +149,9 @@ export function SocialLinksEditor({ profileId, initialSocials }: { profileId: st
                 size="icon"
                 className="h-8 w-8 text-destructive"
                 title="Supprimer"
-                onClick={() => {
-                  if (!confirm("Supprimer ce réseau ?")) return
-                  run(() => deleteSocialLink(social.id), () => setItems((prev) => prev.filter((s) => s.id !== social.id)))
+                onClick={async () => {
+                  const ok = await confirm({ title: "Supprimer ce réseau ?", description: `${social.label || getPlatform(social.platform).label} ne sera plus affiché sous votre bio.`, confirmLabel: "Supprimer", destructive: true })
+                  if (ok) run(() => deleteSocialLink(social.id), () => setItems((prev) => prev.filter((s) => s.id !== social.id)))
                 }}
               >
                 <Trash2 className="h-4 w-4" />

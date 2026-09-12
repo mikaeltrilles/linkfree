@@ -3,6 +3,7 @@ import { redirect } from "next/navigation"
 import { auth } from "@/lib/auth"
 import { Button } from "@/components/ui/button"
 import { SignOutButton } from "@/components/dashboard/SignOutButton"
+import { ConfirmProvider } from "@/components/dashboard/ConfirmDialog"
 import { LayoutDashboard, Link2, Plus, Mail } from "lucide-react"
 import { countUnreadLeads } from "@/lib/leads"
 
@@ -77,7 +78,9 @@ export default async function DashboardLayout({ children }: { children: React.Re
             <SignOutButton />
           </div>
         </header>
-        <main className="p-4 sm:p-6">{children}</main>
+        <main className="p-4 sm:p-6">
+          <ConfirmProvider>{children}</ConfirmProvider>
+        </main>
       </div>
     </div>
   )

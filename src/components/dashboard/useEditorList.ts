@@ -19,10 +19,16 @@ export function useEditorList<T extends { id: string }>(initialItems: T[]) {
     setItems(initialItems)
   }, [initialItems])
 
-  async function run(action: () => Promise<ActionResult>, onSuccess?: () => void): Promise<boolean> {
+  async function run(action: () => Promise<ActionResult | undefined>, onSuccess?: () => void): Promise<boolean> {
     setError(null)
-    const result = await action()
-    if (!result.ok) {
+    let result: ActionResult | undefined
+    try {
+      result = await action()
+    } catch {
+      setError("Une erreur est survenue.")
+      return false
+    }
+    if (result && !result.ok) {
       setError(result.error)
       return false
     }

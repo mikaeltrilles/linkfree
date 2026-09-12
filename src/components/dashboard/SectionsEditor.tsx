@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input"
 import { SortableList } from "./SortableList"
 import { FormError } from "./FormError"
 import { useEditorList } from "./useEditorList"
+import { useConfirm } from "./ConfirmDialog"
 import { createSection, deleteSection, reorderSections, toggleSectionVisibility } from "@/lib/actions/sections"
 import { cn } from "@/lib/utils"
 
@@ -14,6 +15,7 @@ export type EditableSection = { id: string; title: string; isVisible: boolean; p
 
 export function SectionsEditor({ profileId, initialSections }: { profileId: string; initialSections: EditableSection[] }) {
   const { items, setItems, error, run } = useEditorList(initialSections)
+  const confirm = useConfirm()
   const [title, setTitle] = useState("")
 
   return (
@@ -57,9 +59,9 @@ export function SectionsEditor({ profileId, initialSections }: { profileId: stri
                 size="icon"
                 className="h-8 w-8 text-destructive"
                 title="Supprimer"
-                onClick={() => {
-                  if (!confirm(`Supprimer la section « ${section.title} » ? Les liens seront conservés.`)) return
-                  run(() => deleteSection(section.id), () => setItems((prev) => prev.filter((s) => s.id !== section.id)))
+                onClick={async () => {
+                  const ok = await confirm({ title: "Supprimer cette section ?", description: `« ${section.title} » sera supprimée. Les liens qu'elle contient sont conservés, sans section.`, confirmLabel: "Supprimer", destructive: true })
+                  if (ok) run(() => deleteSection(section.id), () => setItems((prev) => prev.filter((s) => s.id !== section.id)))
                 }}
               >
                 <Trash2 className="h-4 w-4" />

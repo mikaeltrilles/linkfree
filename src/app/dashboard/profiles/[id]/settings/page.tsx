@@ -10,6 +10,7 @@ import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Switch } from "@/components/ui/switch"
 import { FormError } from "@/components/dashboard/FormError"
+import { DeleteProfileButton } from "@/components/dashboard/DeleteProfileButton"
 import { ArrowLeft, AlertTriangle, CheckCircle2 } from "lucide-react"
 
 export const dynamic = "force-dynamic"
@@ -167,10 +168,7 @@ export default async function ProfileSettingsPage({
           <p className="text-sm text-muted-foreground">
             Supprime définitivement le profil, ses liens, projets, statistiques et {profile._count.leads} contact(s).
           </p>
-          <form action={deleteProfile}>
-            <input type="hidden" name="profileId" value={profile.id} />
-            <Button type="submit" variant="destructive" size="sm">Supprimer le profil</Button>
-          </form>
+          <DeleteProfileButton profileId={profile.id} slug={profile.slug} action={deleteProfile} />
         </CardContent>
       </Card>
     </div>
