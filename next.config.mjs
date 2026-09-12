@@ -11,8 +11,14 @@ const nextConfig = {
   reactStrictMode: true,
   poweredByHeader: false,
   images: {
-    // Avatars, miniatures et images de projets sont des URL fournies par l'utilisateur.
+    // Avatars, miniatures et images de projets sont des URL fournies par
+    // l'utilisateur : redimensionnées et converties (WebP/AVIF) par sharp,
+    // puis mises en cache dans .next/cache/images.
     remotePatterns: [{ protocol: "https", hostname: "**" }],
+    formats: ["image/avif", "image/webp"],
+    deviceSizes: [384, 640, 828, 1080],
+    imageSizes: [96, 128, 192, 256, 384],
+    minimumCacheTTL: 60 * 60 * 24 * 7,
   },
   experimental: {
     serverActions: {

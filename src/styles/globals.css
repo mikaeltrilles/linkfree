@@ -99,6 +99,17 @@
     z-index: -1;
   }
 
+  .social-icon:hover {
+    background-color: var(--accent);
+    border-color: var(--accent);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .animate-fade-in {
+      animation: none !important;
+    }
+  }
+
   .editorial-title {
     font-family: var(--font-serif), "Playfair Display", Georgia, serif;
     letter-spacing: -0.02em;

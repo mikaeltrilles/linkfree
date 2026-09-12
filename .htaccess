@@ -5,6 +5,9 @@ RewriteBase /
 # Fichiers statiques du build servis directement par Apache (sans passer par PHP)
 RewriteCond %{DOCUMENT_ROOT}/.next/static/$1 -f
 RewriteRule ^_next/static/(.*)$ .next/static/$1 [L]
+# Fichiers publics (favicon, images statiques) servis directement par Apache
+RewriteCond %{DOCUMENT_ROOT}/public/$1 -f
+RewriteRule ^([^.].*)$ public/$1 [L]
 <IfModule mod_headers.c>
   <FilesMatch "\.(js|css|woff2?)$">
     Header set Cache-Control "public, max-age=31536000, immutable"
@@ -18,4 +21,5 @@ RewriteRule ^\.next/(?!static/) - [F,L]
 # Tout le reste est proxyfié vers Next.js
 RewriteCond %{REQUEST_URI} !^/proxy\.php$
 RewriteCond %{REQUEST_URI} !^/\.next/static/
+RewriteCond %{REQUEST_URI} !^/public/
 RewriteRule ^(.*)$ proxy.php [QSA,L]

@@ -2,6 +2,14 @@
 
 Toutes les évolutions notables du projet sont consignées ici.
 
+## [0.9.2] — 2026-09-12
+
+### Performance de la page publique
+- **Contenu visible dès le HTML** : framer-motion retiré de la page publique (la page entière démarrait en opacité 0 jusqu'à l'hydratation JavaScript, puis chaque carte attendait son tour d'animation, jusqu'à 1,5 s pour la dernière). Les apparitions sont désormais des animations CSS (`Reveal`), plafonnées à 450 ms, et désactivées si l'utilisateur préfère réduire les animations.
+- **JavaScript** : bundle propre à `/p/[slug]` de 44 kB à 11 kB, First Load de 149 kB à 115 kB. Dépendance framer-motion supprimée.
+- **Images** : avatar, images de projets et de produits passent par `next/image` avec `sharp` : redimensionnement à la taille affichée, WebP/AVIF, cache disque 7 jours. L'avatar du profil principal (PNG 1080 px, 1 Mo) est servi en ~6 ko.
+- `.htaccess` : fichiers de `public/` servis directement par Apache ; icône SVG de l'application.
+
 ## [0.9.1] — 2026-09-06
 
 ### Nouveautés

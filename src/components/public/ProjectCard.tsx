@@ -1,5 +1,6 @@
 "use client"
 
+import Image from "next/image"
 import { ArrowUpRight, Github, Star } from "lucide-react"
 
 interface ProjectCardProps {
@@ -42,16 +43,13 @@ export function ProjectCard({ project, profileId, primaryColor }: ProjectCardPro
       }
     >
       {project.image && (
-        <a href={href} target="_blank" rel="noopener noreferrer" onClick={track} className="block">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
+        <a href={href} target="_blank" rel="noopener noreferrer" onClick={track} className="relative block overflow-hidden" style={{ height: project.isFeatured ? 176 : 128 }}>
+          <Image
             src={project.image}
             alt=""
-            loading="lazy"
-            className={
-              "w-full object-cover transition duration-500 group-hover:scale-[1.03] " +
-              (project.isFeatured ? "h-44" : "h-32")
-            }
+            fill
+            sizes={project.isFeatured ? "(max-width: 640px) 100vw, 512px" : "(max-width: 640px) 100vw, 256px"}
+            className="object-cover transition duration-500 group-hover:scale-[1.03]"
           />
         </a>
       )}
@@ -84,25 +82,12 @@ export function ProjectCard({ project, profileId, primaryColor }: ProjectCardPro
 
         <div className="mt-auto flex items-center gap-3 pt-3 text-xs font-medium">
           {project.url && (
-            <a
-              href={project.url}
-              target="_blank"
-              rel="noopener noreferrer"
-              onClick={track}
-              className="relative z-10 inline-flex items-center gap-1 transition hover:underline"
-              style={{ color: primaryColor }}
-            >
+            <a href={project.url} target="_blank" rel="noopener noreferrer" onClick={track} className="relative z-10 inline-flex items-center gap-1 transition hover:underline" style={{ color: primaryColor }}>
               Voir le projet <ArrowUpRight className="h-3.5 w-3.5" />
             </a>
           )}
           {project.repoUrl && (
-            <a
-              href={project.repoUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              onClick={track}
-              className="relative z-10 inline-flex items-center gap-1 text-black/50 transition hover:text-black"
-            >
+            <a href={project.repoUrl} target="_blank" rel="noopener noreferrer" onClick={track} className="relative z-10 inline-flex items-center gap-1 text-black/50 transition hover:text-black">
               <Github className="h-3.5 w-3.5" /> Code
             </a>
           )}

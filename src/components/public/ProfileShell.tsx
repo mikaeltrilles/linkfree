@@ -1,8 +1,7 @@
-"use client"
-
-import { motion } from "framer-motion"
 import Link from "next/link"
+import Image from "next/image"
 import { QrCode } from "lucide-react"
+import { Reveal } from "./Reveal"
 import { LinkButton } from "./LinkButton"
 import { ContactForm } from "./ContactForm"
 import { SocialRow } from "./SocialRow"
@@ -88,15 +87,11 @@ export function ProfileShell({ profile }: ProfileShellProps) {
   const colors = (profile.appearance?.colors ?? {}) as { primary?: string }
   const primaryColor = colors.primary || "#111111"
 
-  let delay = 0.35
-  const nextDelay = () => (delay += 0.06)
+  let index = 3
+  const next = () => index++
 
   return (
-    <motion.main
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      className="relative mx-auto flex min-h-screen max-w-lg flex-col items-center px-6 pb-16"
-    >
+    <main className="relative mx-auto flex min-h-screen max-w-lg flex-col items-center px-6 pb-16">
       <PageViewTracker profileId={profile.id} />
 
       {/* Fond organique */}
@@ -110,34 +105,31 @@ export function ProfileShell({ profile }: ProfileShellProps) {
       />
 
       {/* Avatar */}
-      <motion.div
-        initial={{ opacity: 0, scale: 0.8 }}
-        animate={{ opacity: 1, scale: 1 }}
-        transition={{ duration: 0.5 }}
-        className="relative mt-16"
-      >
+      <Reveal index={0} className="relative mt-16">
         <div className="relative h-24 w-24 overflow-hidden rounded-full shadow-xl ring-4 ring-white">
           {profile.avatar ? (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img src={profile.avatar} alt={profile.title || ""} className="h-full w-full object-cover" />
+            <Image
+              src={profile.avatar}
+              alt={profile.title || ""}
+              width={192}
+              height={192}
+              priority
+              sizes="96px"
+              className="h-full w-full object-cover"
+            />
           ) : (
             <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-stone-100 to-stone-200 text-3xl font-bold text-stone-400">
               {(profile.title || profile.slug).charAt(0).toUpperCase()}
             </div>
           )}
         </div>
-      </motion.div>
+      </Reveal>
 
       {/* Titre + bio */}
-      <motion.div
-        initial={{ opacity: 0, y: 10 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.2 }}
-        className="mt-5 text-center"
-      >
+      <Reveal index={1} className="mt-5 text-center">
         <h1 className="editorial-title text-2xl font-semibold text-black/90">{profile.title || profile.slug}</h1>
         {profile.bio && <p className="mt-1.5 max-w-sm text-sm leading-relaxed text-black/50">{profile.bio}</p>}
-      </motion.div>
+      </Reveal>
 
       {/* Réseaux sociaux */}
       <SocialRow socials={profile.socialLinks} primaryColor={primaryColor} />
@@ -146,15 +138,15 @@ export function ProfileShell({ profile }: ProfileShellProps) {
       {profile.links.length > 0 && (
         <div className="mt-8 w-full space-y-3">
           {pinned.map((link) => (
-            <motion.div key={link.id} initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: nextDelay() }}>
+            <Reveal key={link.id} index={next()}>
               {renderLink(link, profile.id, "pinned", primaryColor)}
-            </motion.div>
+            </Reveal>
           ))}
 
           {unsectioned.map((link) => (
-            <motion.div key={link.id} initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: nextDelay() }}>
+            <Reveal key={link.id} index={next()}>
               {renderLink(link, profile.id, "default", primaryColor)}
-            </motion.div>
+            </Reveal>
           ))}
 
           {visibleSections.map((section) => {
@@ -165,9 +157,9 @@ export function ProfileShell({ profile }: ProfileShellProps) {
                 <SectionDivider title={section.title} />
                 <div className="space-y-3">
                   {sectionLinks.map((link) => (
-                    <motion.div key={link.id} initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: nextDelay() }}>
+                    <Reveal key={link.id} index={next()}>
                       {renderLink(link, profile.id, "default", primaryColor)}
-                    </motion.div>
+                    </Reveal>
                   ))}
                 </div>
               </div>
@@ -178,31 +170,19 @@ export function ProfileShell({ profile }: ProfileShellProps) {
 
       {/* Projets */}
       {profile.projects.length > 0 && (
-        <motion.section
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: nextDelay() }}
-          className="mt-10 w-full"
-          aria-label="Projets"
-        >
+        <Reveal as="section" index={next()} className="mt-10 w-full" aria-label="Projets">
           <SectionDivider title="Projets" />
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
             {profile.projects.map((project) => (
               <ProjectCard key={project.id} project={project} profileId={profile.id} primaryColor={primaryColor} />
             ))}
           </div>
-        </motion.section>
+        </Reveal>
       )}
 
       {/* Boutique */}
       {profile.products.length > 0 && (
-        <motion.section
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: nextDelay() }}
-          className="mt-10 w-full"
-          aria-label="Boutique"
-        >
+        <Reveal as="section" index={next()} className="mt-10 w-full" aria-label="Boutique">
           <SectionDivider title="Boutique" />
           <div className="grid grid-cols-2 gap-3">
             {profile.products.map((product) => (
@@ -211,8 +191,9 @@ export function ProfileShell({ profile }: ProfileShellProps) {
                 className="group overflow-hidden rounded-3xl border border-black/[0.06] bg-white/60 backdrop-blur-sm transition-all duration-300 hover:border-black/[0.12] hover:shadow-lg"
               >
                 {product.image && (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img src={product.image} alt={product.title} loading="lazy" className="h-32 w-full object-cover transition duration-500 group-hover:scale-105" />
+                  <div className="relative h-32 w-full overflow-hidden">
+                    <Image src={product.image} alt={product.title} fill sizes="(max-width: 640px) 50vw, 256px" className="object-cover transition duration-500 group-hover:scale-105" />
+                  </div>
                 )}
                 <div className="p-4">
                   <h3 className="text-sm font-semibold text-black/90">{product.title}</h3>
@@ -229,7 +210,7 @@ export function ProfileShell({ profile }: ProfileShellProps) {
               </div>
             ))}
           </div>
-        </motion.section>
+        </Reveal>
       )}
 
       {profile.links.length === 0 && profile.projects.length === 0 && profile.socialLinks.length === 0 && (
@@ -246,6 +227,6 @@ export function ProfileShell({ profile }: ProfileShellProps) {
           Linkfree
         </Link>
       </footer>
-    </motion.main>
+    </main>
   )
 }

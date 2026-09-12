@@ -37,6 +37,11 @@ Sur le serveur : `npx pm2 ls`, logs dans `~/linkfree.tmktools.com/logs/`, cron k
 - Mot de passe du compte personnel défini en base (hash scrypt de l'application).
 - Page Messages du dashboard + notification email (SMTP local 127.0.0.1:25, comme les autres applications du serveur) et Telegram optionnel.
 
+### 2026-09-12 — temps de chargement et projets
+- Mesures : TTFB Node 50 ms, via proxy PHP ~250 ms, donc le ressenti venait du client : page invisible jusqu'à l'hydratation (framer-motion), animations en cascade, avatar PNG de 1 Mo affiché en 96 px.
+- Correctifs : animations CSS sans JS, framer-motion retiré, images via next/image + sharp (glibc 2.28 sur le serveur, compatible), icône SVG.
+- Profil : ajout de HNR (mis en avant), OTI et rss.tmktools.com ; Cronify écarté (pas en ligne, fork sans commit).
+
 ### Reste à faire (pistes)
 - Upload d'images (avatar, projets) plutôt que des URL.
 - Thèmes et mode sombre de la page publique.
