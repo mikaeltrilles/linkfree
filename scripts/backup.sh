@@ -31,6 +31,8 @@ tar -czf "$ARCHIVE.tmp" -C "$T/a" . && mv "$ARCHIVE.tmp" "$ARCHIVE"
 find "$DEST" -maxdepth 1 -name '*.tar.gz' -mtime +"$RETENTION_JOURS" -delete
 echo "[$(date '+%F %T')] ✅ $ARCHIVE ($(du -h "$ARCHIVE" | cut -f1))"
 
+# Limite de processus du mutualisé : sans ça rclone plante (newosproc errno=11).
+export GOMAXPROCS=2 RCLONE_TRANSFERS=2 RCLONE_CHECKERS=2
 # « copy » et non « sync » : une archive effacée ici (serveur vidé, compromis) ne l'est jamais sur pCloud.
 "$HOME/bin/rclone" copy "$DEST" "$REMOTE" --include '*.tar.gz'
 "$HOME/bin/rclone" delete "$REMOTE" --min-age "${RETENTION_PCLOUD_JOURS:-60}d"
