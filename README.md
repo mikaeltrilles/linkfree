@@ -48,6 +48,17 @@ Les notifications email partent par le SMTP de l'hébergeur avec la boîte `nore
 
 Apache transmet toutes les requêtes à `proxy.php`, qui relaie vers Node sur `127.0.0.1:3000` ; les fichiers `/_next/static` sont servis directement. `scripts/keepalive.sh` (cron toutes les 5 minutes) relance l'application si `/api/health` ne répond plus.
 
+## Sauvegarde
+
+`scripts/backup.sh`, chaque jour à 2 h 10, supervisée par Cronify (application « LinkFree », tâche « Sauvegarde ») :
+dump MySQL cohérent (`mysqldump --single-transaction`) + `.env` dans `~/linkfree-backups/AAAA-MM-JJ.tar.gz`
+(mode 700, hors du dossier synchronisé par `deploy.sh`), 14 jours conservés, puis copie chiffrée (`rclone copy`)
+sur `pcloud-chiffre:Sauvegardes/linkfree.tmktools.com`, 60 jours conservés. Journal : `logs/backup.log`.
+Pas de fichiers déposés à sauvegarder (images des projets = URL externes). `prisma/dev.db` est un reste inutilisé.
+
+Restaurer : `~/bin/rclone copy pcloud-chiffre:Sauvegardes/linkfree.tmktools.com/<archive> /tmp/restauration/`,
+puis `mariadb <base> < vote1550_linkfree_db.sql`. Convention commune : `../SAUVEGARDES-PCLOUD.md`.
+
 ## Docker
 
 ```bash
@@ -75,7 +86,7 @@ project/
 │       ├── public-profile.ts   # Chargement d'un profil publié
 │       └── social-platforms.ts # Catalogue des réseaux
 ├── prisma/schema.prisma
-├── scripts/                    # keepalive.sh, server-deploy.sh
+├── scripts/                    # keepalive.sh, server-deploy.sh, backup.sh
 ├── proxy.php, .htaccess, server.js, ecosystem.config.js
 └── deploy.sh
 ```
